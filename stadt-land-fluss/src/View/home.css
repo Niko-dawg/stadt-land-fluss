@@ -1,0 +1,84 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fcf8ed;
+  padding: 10px;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 24px;
+  border: 1px solid purple;
+  padding: 10px;
+  width: 80px;
+  text-align: center;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.helpBtn {
+  border: 1px solid black;
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.adminBtn {
+  border: 1px solid black;
+  background-color: white;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.loginBtn {
+  border: 1px solid black;
+  background-color: white;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.gameModeContainer {
+  display: flex;
+  border: 2px solid black;
+  margin: 20px 0;
+  height: 80px;
+}
+
+.highscoreBtn {
+  border: 1px solid black;
+  width: 100px;
+  cursor: pointer;
+}
+
+.gameModeContent {
+  background-color: #d3d3d3;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  border-left: 1px solid black;
+}
+.gameModeButtonWrapper {
+  flex: 1;
+  display: flex;
+}
+.gameModeContent {
+  width: 100%;
+  height: 100%;
+  background-color: #d3d3d3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  border-left: 1px solid black;
+  border: none;
+  cursor: pointer;
+}
