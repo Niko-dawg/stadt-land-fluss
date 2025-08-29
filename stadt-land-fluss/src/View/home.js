@@ -1,9 +1,14 @@
 import React from "react";
 import "./home.css";
+import ReactDOM from "react-dom/client";
+import { Spiel } from "./spiel.js";
+import logo from "./img/logo.png";
+
+
 
 const Header = () => (
   <header className="header">
-    <div className="logo">SLF!</div>
+    <div className="logo"><img src={logo} alt="Logo" /></div>
     <div className="headerButtons">
       <button className="helpBtn">?</button>
       <button className="adminBtn">Admin</button>
@@ -25,12 +30,13 @@ const GameMode = ({ title, players, onClick }) => (
 );
 
 export class Test extends React.Component {
+
   handleSinglePlayer = () => {
-    alert("Single Player ausgewählt!");
+    ReactDOM.createRoot(document.getElementById("root")).render(<Spiel />);
   };
 
   handleMultiPlayer = () => {
-    alert("Multiplayer ausgewählt!");
+    ReactDOM.createRoot(document.getElementById("root")).render(<Spiel />);
   };
 
   render() {
