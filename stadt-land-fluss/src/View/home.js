@@ -2,7 +2,7 @@ import React from "react";
 import "./home.css";
 import ReactDOM from "react-dom/client";
 import { Spiel } from "./spiel.js";
-import logo from "./img/logo.png";
+import logo from "./img/Logo.png";
 
 
 
@@ -10,6 +10,7 @@ const Header = () => (
   <header className="header">
     <div className="logo"><img src={logo} alt="Logo" /></div>
     <div className="headerButtons">
+      <button className="impressumBtn">Impressum</button>
       <button className="helpBtn">?</button>
       <button className="adminBtn">Admin</button>
       <button className="loginBtn">Log in</button>
