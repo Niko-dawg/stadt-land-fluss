@@ -1,15 +1,18 @@
+#Autor: Torga Aslan
+#docker-compose.yml für die Datenbank
+
 services:
   db:
-    image: postgres:16                # offizielle Postgres-Version 16
-    environment:                      # Umgebungsvariablen für die DB-Konfiguration
+    image: postgres:16                                   # offizielle Postgres-Version 16
+    environment:                                         # Umgebungsvariablen für die DB-Konfiguration
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:                            # Port-Mapping: Host 5432 -> Container 5432
-      - "127.0.0.1:5432:5432"
-    volumes:                          # Volume für persistente Daten
-      - pgdata:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d/
+    ports:                           
+      - "127.0.0.1:5432:5432"                           # Port-Mapping: Host 5432 -> Container 5432, nur Lokal erreichbar für LAN-Demo
+    volumes:                         
+      - pgdata:/var/lib/postgresql/data                 # Named Volume: für persistente DB-Daten
+      - ./database/init:/docker-entrypoint-initdb.d/    # Bind-Mount: lokale init-Skripte werden beim ersten Start des Containers ausgeführt
 
-volumes:                              # Definition des Volumes
+volumes:                                                # Definition des Volumes
   pgdata:
