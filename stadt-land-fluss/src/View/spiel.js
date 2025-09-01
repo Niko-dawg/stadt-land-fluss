@@ -1,20 +1,28 @@
 import React from "react";
 import "./spiel.css";
+import logo from "./img/Logo.png";
 
 export class Spiel extends React.Component {
   render() {
     return (
       <div className="container">
         <div className="header">
-          <div className="logo">SLF!</div>
-          <div className="timer">60</div>
+          <div className="logo"><img src={logo} alt="Logo" /></div>
+          <div className="headerButtons">
+            <button className="impressumBtn">Impressum</button>
+            <button className="helpBtn">?</button>
+            <button className="highscoreBtn">Highscore</button>
+            <button className="homeBtn">Home</button>
+          </div>
+         
         </div>
-
-        <div className="letter">
+        <div className="secondheader">
+        <div className="timer">60</div>
+        <div className="letter"> 
           <p>Der Gesuchte Buchstabe ist :</p>
           <div className="big-letter">A</div>
         </div>
-
+    </div>
         <div className="game-grid">
           <div className="input-row">
             <div className="background-image bg-1"></div>
