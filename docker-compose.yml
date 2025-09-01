@@ -3,6 +3,7 @@
 
 services:
   db:
+<<<<<<< Updated upstream
     image: postgres:16                                   # offizielle Postgres-Version 16
     environment:                                         # Umgebungsvariablen für die DB-Konfiguration
       POSTGRES_USER: ${POSTGRES_USER}
@@ -13,6 +14,18 @@ services:
     volumes:                         
       - pgdata:/var/lib/postgresql/data                 # Named Volume: für persistente DB-Daten
       - ./database/init:/docker-entrypoint-initdb.d/    # Bind-Mount: lokale init-Skripte werden beim ersten Start des Containers ausgeführt
+=======
+    image: postgres:16                # offizielle Postgres-Version 16
+    environment:                      # Umgebungsvariablen für die DB-Konfiguration
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: slf_db
+    ports:                            # Port-Mapping: Host 5432 -> Container 5432
+      - "127.0.0.1:5432:5432"
+    volumes:                          # Volume für persistente Daten
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d/
+>>>>>>> Stashed changes
 
 volumes:                                                # Definition des Volumes
   pgdata:
