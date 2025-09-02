@@ -4,13 +4,25 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role BOOLEAN DEFAULT FALSE
+    is_admin BOOLEAN DEFAULT FALSE
 );
 
 --Tabelle für Kategorien (z.B. Stadt, Land, Fluss, etc.) mit eindeutigen Namen
 CREATE TABLE categories (
     category_id SERIAL PRIMARY KEY,
     category_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+--Tabelle für gültige Wörter, die einer Kategorie zugeordnet sind
+--Fremdschlüssel zu categories
+CREATE TABLE valid_words (
+    word_id SERIAL PRIMARY KEY,
+    category_id INTEGER NOT NULL,
+    word VARCHAR(100) NOT NULL,
+    CONSTRAINT fk_category_valid
+        FOREIGN KEY(category_id)
+        REFERENCES categories(category_id)
+        ON DELETE CASCADE
 );
 
 --Tabelle für Spieleinträge, die eine Antwort in einer bestimmten Kategorie für einen Benutzer speichern
@@ -26,7 +38,7 @@ CREATE TABLE game_entries (
         FOREIGN KEY(user_id) 
         REFERENCES users(user_id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_category
+    CONSTRAINT fk_category_entry
         FOREIGN KEY(category_id)
         REFERENCES categories(category_id)
         ON DELETE CASCADE
