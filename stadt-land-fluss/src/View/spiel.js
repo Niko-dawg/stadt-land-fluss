@@ -3,10 +3,14 @@ import "./spiel.css";
 import logo from "./img/Logo.png";
 import { Test } from "./home";
 import ReactDOM from "react-dom/client";
+import { Highscore } from "./highscore.js";
 
 export class Spiel extends React.Component {
     homebtn = () => {
       ReactDOM.createRoot(document.getElementById("root")).render(<Test />);
+    };
+    onHighscore = () => {
+      ReactDOM.createRoot(document.getElementById("root")).render(<Highscore />);
     };
 
   render() {
@@ -17,7 +21,7 @@ export class Spiel extends React.Component {
           <div className="headerButtons">
             <button className="impressumBtn">Impressum</button>
             <button className="helpBtn">?</button>
-            <button className="highscoreBtn">Highscore</button>
+            <button className="highscoreBtn" onClick={this.onHighscore}>Highscore</button>
             <button className="homeBtn" title=" Home " onClick={this.homebtn}>Home</button>
           </div>
          
@@ -25,7 +29,7 @@ export class Spiel extends React.Component {
         <div className="secondheader">
         <div className="timer">60</div>
         <div className="letter"> 
-          <p>Der Gesuchte Buchstabe ist :</p>
+          <p>Der gesuchte Buchstabe ist :</p>
           <div className="big-letter">A</div>
         </div>
     </div>
@@ -52,7 +56,7 @@ export class Spiel extends React.Component {
           </div>
         </div>
 
-        <button className="AntwortBtn">Antworten Abgeben</button>
+        <button className="AntwortBtn">Antworten abgeben</button>
 
         <div className="players-finished">
           fertige Spieler <span>1/3</span>
