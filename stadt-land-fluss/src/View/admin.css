@@ -1,0 +1,149 @@
+.adminContainer {
+  background-color: #f5f1eb;
+  height: 100%;
+  width: 70%;
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.adminHeader {
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.adminButtonHome {
+  border: 2px solid black;
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: transparent;
+  padding: 8px 15px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.adminUserListContainer {
+  border: 6px solid black;
+  width: 280px;
+  height: 405px;
+  overflow-y: auto;
+  background: white;
+  margin-top: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.adminButtonBenutzerAnzeigen {
+  border: 3.5px solid black;
+  font-size: 16px;
+  width: 280px;
+  height: 39px;
+  background: transparent;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.adminMain {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.adminUserListSection {
+  flex: 0 0 300px;
+}
+
+.adminUserManageSection {
+  background-color: #ccc;
+  flex-grow: 1;
+  height: 405px;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.adminManageTitle {
+  width: 100%;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.adminInput {
+  font-size: 14px;
+  padding: 5px;
+  width: 48%;
+  box-sizing: border-box;
+}
+
+.adminLabel {
+  width: 48%;
+  margin-top: 5px;
+}
+
+.adminButton {
+  border: 2px solid black;
+  background: white;
+  padding: 7px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 48%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.adminButtonWide {
+  width: 98%;
+  margin-top: 20px;
+}
+
+.adminCategories {
+  width: 48%;
+  background: white;
+  padding: 10px;
+  box-sizing: border-box;
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adminCategoryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.adminCategoryLabel {
+  flex: 1;
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+}
+
+.adminCategoryCheckbox {
+  width: 22px;
+  height: 22px;
+  accent-color: #222;
+  margin-left: 10px;
+  cursor: pointer;
+}
+.adminCategoryValue {
+  width: 30%;
+  text-align: right;
+}
+
+.adminTextLamur {
+  width: 48%;
+  padding: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin-top: 25px;
+}
