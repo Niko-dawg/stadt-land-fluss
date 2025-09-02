@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import { Spiel } from "./spiel.js";
 import logo from "./img/Logo.png";
 import { Highscore } from "./highscore.js";
+import { LoginWindow } from "./login.js";
 
 const Header = ({ onHighscore }) => (
   <header className="header">
@@ -12,7 +13,7 @@ const Header = ({ onHighscore }) => (
       <button className="impressumBtn">Impressum</button>
       <button className="helpBtn">?</button>
       <button className="adminBtn">Admin</button>
-      <button className="loginBtn">Log in</button>
+      <button className="loginBtn" onClick={() => ReactDOM.createRoot(document.getElementById("root")).render(<LoginWindow />)}>Log in</button>
       <button className="highscoreBtn" onClick={onHighscore}>Highscore</button>
     </div>
   </header>
