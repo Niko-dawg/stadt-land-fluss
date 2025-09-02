@@ -3,8 +3,9 @@ import "./home.css";
 import ReactDOM from "react-dom/client";
 import { Spiel } from "./spiel.js";
 import logo from "./img/Logo.png";
+import { Highscore } from "./highscore.js";
 
-const Header = () => (
+const Header = ({ onHighscore }) => (
   <header className="header">
     <div className="logo"><img src={logo} alt="Logo" /></div>
     <div className="headerButtons">
@@ -12,14 +13,14 @@ const Header = () => (
       <button className="helpBtn">?</button>
       <button className="adminBtn">Admin</button>
       <button className="loginBtn">Log in</button>
+      <button className="highscoreBtn" onClick={onHighscore}>Highscore</button>
     </div>
   </header>
 );
 
 const GameMode = ({ title, players, onClick }) => (
-  <div className="home.gameModeContainer">
-    <button className="home.highscoreBtn">Highscore</button>
-    <div className="home.gameModeButtonWrapper">
+  <div className="home-gameModeContainer">
+    <div className="home-gameModeButtonWrapper">
       <button className="gameModeContent" onClick={onClick}>
         <h2>{title}</h2>
         {players !== undefined && <p>Spielende Spieler : {players}</p>}
@@ -33,15 +34,19 @@ export class Test extends React.Component {
   handleSinglePlayer = () => {
     ReactDOM.createRoot(document.getElementById("root")).render(<Spiel />);
   };
-
+  
   handleMultiPlayer = () => {
     ReactDOM.createRoot(document.getElementById("root")).render(<Spiel />);
+  };
+  
+  handleHighscore = () => {
+    ReactDOM.createRoot(document.getElementById("root")).render(<Highscore />);
   };
 
   render() {
     return (
       <div style={{ backgroundColor: "#fcf8ed", minHeight: "100vh", padding: "10px" }}>
-        <Header />
+        <Header onHighscore={this.handleHighscore} />
         <GameMode title="Single Player" onClick={this.handleSinglePlayer} />
         <GameMode title="Multiplayer" players={4} onClick={this.handleMultiPlayer} />
       </div>
