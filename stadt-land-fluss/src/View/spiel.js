@@ -1,8 +1,14 @@
 import React from "react";
 import "./spiel.css";
 import logo from "./img/Logo.png";
+import { Test } from "./home";
+import ReactDOM from "react-dom/client";
 
 export class Spiel extends React.Component {
+    homebtn = () => {
+      ReactDOM.createRoot(document.getElementById("root")).render(<Test />);
+    };
+
   render() {
     return (
       <div className="container">
@@ -12,7 +18,7 @@ export class Spiel extends React.Component {
             <button className="impressumBtn">Impressum</button>
             <button className="helpBtn">?</button>
             <button className="highscoreBtn">Highscore</button>
-            <button className="homeBtn">Home</button>
+            <button className="homeBtn" title=" Home " onClick={this.homebtn}>Home</button>
           </div>
          
         </div>
@@ -46,7 +52,7 @@ export class Spiel extends React.Component {
           </div>
         </div>
 
-        <button>Antworten Abgeben</button>
+        <button className="AntwortBtn">Antworten Abgeben</button>
 
         <div className="players-finished">
           fertige Spieler <span>1/3</span>

@@ -17,9 +17,9 @@ const Header = () => (
 );
 
 const GameMode = ({ title, players, onClick }) => (
-  <div className="gameModeContainer">
-    <button className="highscoreBtn">Highscore</button>
-    <div className="gameModeButtonWrapper">
+  <div className="home.gameModeContainer">
+    <button className="home.highscoreBtn">Highscore</button>
+    <div className="home.gameModeButtonWrapper">
       <button className="gameModeContent" onClick={onClick}>
         <h2>{title}</h2>
         {players !== undefined && <p>Spielende Spieler : {players}</p>}

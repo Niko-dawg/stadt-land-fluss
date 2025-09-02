@@ -53,14 +53,14 @@ header {
   font-size: 20px;
 }
 
-.gameModeContainer {
+.home.gameModeContainer {
   display: flex;
   border: 2px solid black;
   margin: 20px 0;
   height: 200px;
 }
 
-.highscoreBtn {
+.home.highscoreBtn {
   border: 1px solid black;
   width: 200px;
   cursor: pointer;
@@ -77,7 +77,7 @@ header {
   font-size: 24px;
   border-left: 1px solid black;
 }
-.gameModeButtonWrapper {
+.home.gameModeButtonWrapper {
   flex: 1;
   display: flex;
 }
