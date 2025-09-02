@@ -1,0 +1,41 @@
+//container starten
+docker start stadt-land-fluss-db-1
+
+//db-starten
+sudo docker exec -it stadt-land-fluss-db-1 psql -U root -d slf_db
+
+
+//Insert für Benutzerdaten
+INSERT INTO users (username, email, password_hash, is_admin)
+VALUES
+('torga', 'torgaa@example.com', 'aslan', FALSE),
+('emilia', 'emiliyo@example.com', 'lohmann', FALSE),
+('niko', 'niko@example.com', 'zimmer', TRUE);
+
+//Insert für die KAtegorien
+INSERT INTO categories (category_name)
+VALUES
+('Stadt'),
+('Land'),
+('Fluss'),
+('Tier');
+
+//Insert für Wörter
+INSERT INTO valid_words (category_id, word) VALUES
+(1, 'Berlin'),
+(1, 'München'),
+(2, 'Deutschland'),
+(2, 'Frankreich'),
+(3, 'Rhein'),
+(4, 'Hund'),
+(4, 'Katze');
+
+
+//Insert für entries (Bei Fragen an den Datenbank Chef wenden)
+INSERT INTO game_entries (category_id, answer, points, user_id, is_multiplayer)
+VALUES
+(1, 'Berlin', 10, 1, TRUE),
+(2, 'Deutschland', 10, 1, TRUE),
+(3, 'Rhein', 10, 2, TRUE),
+(4, 'Katze', 5, 2, TRUE),
+(1, 'München', 10, 3, FALSE);
