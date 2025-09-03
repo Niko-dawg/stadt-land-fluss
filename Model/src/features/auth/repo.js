@@ -1,13 +1,18 @@
 // DB-Zugriffe für User (nur SQL hier)
-// Tabelle anpassen, falls sie anders heißt als app_user
+//Autor: Torga Aslan
 const db = require('../../db');
 
 // User per E-Mail holen (für Login)
 async function findByEmail(email) {
   const { rows } = await db.query(
-    `SELECT user_id, username, email, password_hash
-       FROM users
-      WHERE email = $1`,
+     `SELECT 
+        user_id AS id,           
+        username,
+        email,
+        password_hash,           
+        is_admin
+     FROM users
+     WHERE email = $1`,
     [email]
   );
   return rows[0] || null;
@@ -16,8 +21,7 @@ async function findByEmail(email) {
 // Prüfen ob Username ODER E-Mail schon existieren (für Register)
 async function existsByUsernameOrEmail(username, email) {
   const { rows } = await db.query(
-    `SELECT 1
-       FROM users
+     `SELECT 1 FROM users
       WHERE username = $1 OR email = $2
       LIMIT 1`,
     [username, email]
@@ -28,20 +32,12 @@ async function existsByUsernameOrEmail(username, email) {
 // Neuen User anlegen
 async function create({ username, email, passwordHash }) {
   const { rows } = await db.query(
-    `INSERT INTO users (username, email, password_hash)
-     VALUES ($1, $2, $3)
-     RETURNING user_id, username, email`,
+   `INSERT INTO users (username, email, password_hash, is_admin)
+       VALUES ($1,$2,$3,false)
+       RETURNING user_id AS id, username, email, is_admin`,
     [username, email, passwordHash]
   );
   return rows[0];
 }
 
-//Wörtebuch speichern
-async function savevalid_words(userId, vocabulary) {
-  const { rows } = await db.query(
-    'SELECT * FROM valid_words',
-    []
-  );
-  return rows;
-}
 module.exports = { findByEmail, existsByUsernameOrEmail, create };
