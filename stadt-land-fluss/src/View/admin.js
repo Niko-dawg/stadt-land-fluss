@@ -1,6 +1,8 @@
 import React from "react";
 import "./admin.css";
-
+import "./home.js"
+import { Test } from "./home.js";
+import ReactDOM from "react-dom/client";
 
 export default function AdminUserVerwaltung() {
   const [adminEmail, setAdminEmail] = React.useState("");
@@ -19,7 +21,7 @@ export default function AdminUserVerwaltung() {
     <div className="adminContainer">
       <header className="adminHeader">
         Admin User Verwaltung
-        <button className="adminButtonHome">Home</button>
+        <button className="adminButtonHome"  onClick={() => ReactDOM.createRoot(document.getElementById("root")).render(<Test />)}>Home</button>
       </header>
 
       <div className="adminMain">
