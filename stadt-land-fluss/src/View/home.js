@@ -7,6 +7,7 @@ import { Highscore } from "./highscore.js";
 import { LoginWindow } from "./login.js";
 import Admin from "./admin.js";
 
+
 const Header = ({ onHighscore }) => (
   <header className="header">
     <div className="logo"><img src={logo} alt="Logo" /></div>

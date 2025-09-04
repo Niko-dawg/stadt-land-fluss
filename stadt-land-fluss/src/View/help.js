@@ -1,14 +1,15 @@
 import React from "react";
+import ReactDOM from "react-dom/client";
 import "./help.css";
-import logo from "./logo.svg"; // Beispiel-Logo, bitte eigenes Logo hier einfügen
+import logo from "./img/Logo.png"; // Beispiel-Logo, bitte eigenes Logo hier einfügen
 
 export default function HelpPage() {
   return (
     <div className="help-page">
       <header className="help-header">
-        <div className="logo-container" aria-label="Stadt.Land.Flow Logo">
-          <img src={logo} alt="Stadt.Land.Flow Logo" className="logo" />
-          <span className="logo-text">Stadt.Land.Flow</span>
+        <div className="logo-container" aria-label="Stadt.Land.Fluss Logo">
+          <img src={logo} alt="Stadt.Land.Fluss Logo" className="logo" />
+          <span className="logo-text">Stadt.Land.Fluss</span>
         </div>
         <button
           className="home-button"
@@ -20,7 +21,7 @@ export default function HelpPage() {
       </header>
 
       <main className="help-content">
-        <h1>Willkommen bei <strong>Stadt.Land.Flow!</strong></h1>
+        <h1>Willkommen bei <strong>Stadt.Land.Fluss!</strong></h1>
         <p>
           Dein schnelles Wortspiel für Stadt–Land–Fluss – alleine oder gegen andere. Diese Anleitung erklärt dir kurz und einfach alles Wichtige.
         </p>
