@@ -1,25 +1,7 @@
 import React from "react";
 import "./home.css";
-import ReactDOM from "react-dom/client";
-import { Spiel } from "./spiel.js";
-import logo from "./img/Logo.png";
-import { Highscore } from "./highscore.js";
-import { LoginWindow } from "./login.js";
-import Admin from "./admin.js";
-
-
-const Header = ({ onHighscore }) => (
-  <header className="header">
-    <div className="logo"><img src={logo} alt="Logo" /></div>
-    <div className="headerButtons">
-      <button className="impressumBtn">Impressum</button>
-      <button className="helpBtn">?</button>
-      <button className="adminBtn" onClick={() => ReactDOM.createRoot(document.getElementById("root")).render(<Admin />)}>Admin</button>
-      <button className="loginBtn" onClick={() => ReactDOM.createRoot(document.getElementById("root")).render(<LoginWindow />)}>Log in</button>
-      <button className="highscoreBtn" onClick={onHighscore}>Highscore</button>
-    </div>
-  </header>
-);
+import { useNavigate } from "react-router-dom";
+import { Header } from "../components/Header.js";
 
 const GameMode = ({ title, players, onClick }) => (
   <div className="home-gameModeContainer">
@@ -32,29 +14,22 @@ const GameMode = ({ title, players, onClick }) => (
   </div>
 );
 
-export class Test extends React.Component {
+export function Test() {
+  const navigate = useNavigate();
 
-  handleSinglePlayer = () => {
-    ReactDOM.createRoot(document.getElementById("root")).render(<Spiel />);
+  const handleSinglePlayer = () => {
+    navigate('/spiel');
   };
   
-  handleMultiPlayer = () => {
-    ReactDOM.createRoot(document.getElementById("root")).render(<Spiel />);
-  };
-  
-  handleHighscore = () => {
-    ReactDOM.createRoot(document.getElementById("root")).render(<Highscore />);
+  const handleMultiPlayer = () => {
+    navigate('/spiel');
   };
 
-  
-
-  render() {
-    return (
-      <div style={{ backgroundColor: "#fcf8ed", minHeight: "100vh", padding: "10px" }}>
-        <Header onHighscore={this.handleHighscore} />
-        <GameMode title="Single Player" onClick={this.handleSinglePlayer} />
-        <GameMode title="Multiplayer" players={4} onClick={this.handleMultiPlayer} />
-      </div>
-    );
-  }
+  return (
+    <div style={{ backgroundColor: "#fcf8ed", minHeight: "100vh", padding: "10px" }}>
+      <Header />
+      <GameMode title="Single Player" onClick={handleSinglePlayer} />
+      <GameMode title="Multiplayer" players={4} onClick={handleMultiPlayer} />
+    </div>
+  );
 }

@@ -1,11 +1,12 @@
 import React from "react";
 import "./login.css";
-import { Test } from "./home";
-import ReactDOM from "react-dom/client";
+import { useNavigate } from "react-router-dom";
 
 export function LoginWindow() {
+  const navigate = useNavigate();
+
   const handleClose = () => {
-    ReactDOM.createRoot(document.getElementById("root")).render(<Test />);
+    navigate('/');
   };
 
   return (
@@ -16,7 +17,7 @@ export function LoginWindow() {
       <input className="input-field-username" id="username" type="text" placeholder="Benutzername" />
       <label className="input-label" htmlFor="password">Passwort</label>
       <input className="input-field-password" id="password" type="password" placeholder="Passwort" />
-      <button>Einloggen</button>
+      <button onClick={() => console.log('Login-Funktionalität noch nicht implementiert')}>Einloggen</button>
     </div>
   );
 }

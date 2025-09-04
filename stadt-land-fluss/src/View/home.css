@@ -97,8 +97,7 @@ header {
   border: none;
   cursor: pointer;
 }
-
 .gameModeContent:hover {
-  background: #f3e7d9;
-  border: 3px solid #a67c52;
+  background-color: #f3e7d9;
+  border: 2px #a67c52 solid;
 }

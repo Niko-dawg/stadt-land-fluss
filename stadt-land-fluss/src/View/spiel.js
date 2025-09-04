@@ -1,31 +1,27 @@
 import React from "react";
 import "./spiel.css";
-import logo from "./img/Logo.png";
-import { Test } from "./home";
-import ReactDOM from "react-dom/client";
-import { Highscore } from "./highscore.js";
+import { Header } from "../components/Header.js";
+import { useNavigate } from "react-router-dom";
 
-export class Spiel extends React.Component {
-    homebtn = () => {
-      ReactDOM.createRoot(document.getElementById("root")).render(<Test />);
-    };
-    onHighscore = () => {
-      ReactDOM.createRoot(document.getElementById("root")).render(<Highscore />);
-    };
+export function Spiel() {
+  const navigate = useNavigate();
+  
+  const customButtons = [
+    {
+      text: "Home",
+      className: "homeBtn",
+      title: "Home",
+      onClick: () => navigate('/')
+    }
+  ];
 
-  render() {
-    return (
+  return (
       <div className="container">
-        <div className="header">
-          <div className="logo"><img src={logo} alt="Logo" /></div>
-          <div className="headerButtons">
-            <button className="impressumBtn">Impressum</button>
-            <button className="helpBtn">?</button>
-            <button className="highscoreBtn" onClick={this.onHighscore}>Highscore</button>
-            <button className="homeBtn" title=" Home " onClick={this.homebtn}>Home</button>
-          </div>
-         
-        </div>
+        <Header 
+          showLogin={false} 
+          showAdmin={false} 
+          customButtons={customButtons}
+        />
         <div className="secondheader">
         <div className="timer">60</div>
         <div className="letter"> 
@@ -63,5 +59,4 @@ export class Spiel extends React.Component {
         </div>
       </div>
     );
-  }
 }
