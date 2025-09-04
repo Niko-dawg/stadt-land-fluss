@@ -1,15 +1,13 @@
 import React from "react";
 import "./admin.css";
-import "./home.js"
-import { Test } from "./home.js";
-import ReactDOM from "react-dom/client";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminUserVerwaltung() {
+  const navigate = useNavigate();
   const [adminEmail, setAdminEmail] = React.useState("");
   const [adminRolle, setAdminRolle] = React.useState("");
   const [adminPasswort, setAdminPasswort] = React.useState("");
   const [adminBenutzername, setAdminBenutzername] = React.useState("");
-  const [adminLamur, setAdminLamur] = React.useState("Lamur");
 
   // Beispiel: statische Benutzerdaten
   const adminBenutzerListe = [
@@ -21,7 +19,7 @@ export default function AdminUserVerwaltung() {
     <div className="adminContainer">
       <header className="adminHeader">
         Admin User Verwaltung
-        <button className="adminButtonHome"  onClick={() => ReactDOM.createRoot(document.getElementById("root")).render(<Test />)}>Home</button>
+        <button className="adminButtonHome" onClick={() => navigate('/')}>Home</button>
       </header>
 
       <div className="adminMain">
@@ -118,7 +116,7 @@ export default function AdminUserVerwaltung() {
           <input
             type="text"
             className="adminText"
-            value={adminLamur}
+            value="Lamur"
             readOnly
           />
         </section>
