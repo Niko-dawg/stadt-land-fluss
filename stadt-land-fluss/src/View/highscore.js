@@ -26,6 +26,7 @@ export function Highscore() {
       <Header 
         showLogin={false} 
         showAdmin={false} 
+        showHighscore={false}
         customButtons={customButtons}
       />
       <div className="highscore-table-container">
