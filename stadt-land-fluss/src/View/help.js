@@ -221,7 +221,7 @@ export default function HelpPage() {
         <section>
           <h2>15. Über das Spiel</h2>
           <ul>
-            <li><strong>Name &amp; Logo</strong>: <em>Stadt.Land.Flus!</em> – das Logo siehst du oben links.</li>
+            <li><strong>Name &amp; Logo</strong>: <em>Stadt.Land.Stadt–Land–Fluss!</em> – das Logo siehst du oben links.</li>
             <li><strong>Version</strong>: 1.0</li>
             <li><strong>Letzte Aktualisierung</strong>: 04.09.2025</li>
           </ul>
