@@ -1,3 +1,4 @@
+//Autor: Torga Aslan
 // Definiert die Endpunkte
 const router = require('express').Router();
 const ctrl = require('./controller');
