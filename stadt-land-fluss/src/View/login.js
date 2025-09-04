@@ -16,7 +16,7 @@ export function LoginWindow() {
       <input className="input-field-username" id="username" type="text" placeholder="Benutzername" />
       <label className="input-label" htmlFor="password">Passwort</label>
       <input className="input-field-password" id="password" type="password" placeholder="Passwort" />
-      <button onClick={() => { return userLogin(username, password); }}>Einloggen</button>
+      <button>Einloggen</button>
     </div>
   );
 }
