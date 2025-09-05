@@ -1,3 +1,4 @@
+/* Emilia */
 .highscore-container {
   position: relative;
   background-color: #fff9ef;
@@ -11,6 +12,7 @@
   overflow: hidden;
 }
 
+/* Emilia */
 .highscore-header {
   display: flex;
   justify-content: space-between;
@@ -20,6 +22,7 @@
   position: relative;
 }
 
+/* Emilia */
 .highscore-logo {
   display: flex;
   align-items: center;
@@ -29,11 +32,13 @@
   color: #333;
 }
 
+/* Emilia */
 .highscore-headerButtons {
   display: flex;
   gap: 10px;
 }
 
+/* Emilia */
 .highscore-impressumBtn,
 .highscore-helpBtn,
 .highscore-homeBtn {
@@ -46,12 +51,14 @@
   transition: background 0.2s;
 }
 
+/* Emilia */
 .highscore-impressumBtn:hover,
 .highscore-helpBtn:hover,
 .highscore-homeBtn:hover {
   background: #f5e6c8;
 }
 
+/* Emilia */
 .highscore-title {
   font-size: 48px;
   font-weight: bold;
@@ -61,12 +68,15 @@
   position: relative;
 }
 
+/* Emilia */
 .highscore-table-container {
   margin-top: 30px;
   position: relative;
   z-index: 2;
 }
 
+
+/* Emilia */
 .highscore-table {
   width: 60%;
   margin: 0 auto;
@@ -79,25 +89,31 @@
   z-index: 2;
 }
 
+
+/* Emilia */
 .highscore-table th,
 .highscore-table td {
   border: 2px solid black;
   padding: 10px 20px;
 }
 
+/* Emilia */
 .highscore-table th {
   background-color: #fff9ef;
 }
 
+/* Emilia */
 .highscore-table td {
   background-color: #d3d3d3;
 }
 
+/* Emilia */
 .highscore-table td.crown {
   background-color: #ffe082;
   font-size: 24px;
 }
 
+/* Emilia */
 .highscore-weather-vane {
   background-image: url('./img/wegweiser.png');
   position: absolute;

@@ -1,3 +1,4 @@
+/* Emilia */
 .container {
   position: relative;
   background-color: #fff9ef;
@@ -9,6 +10,7 @@
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
+/* Emilia */
 .header {
   display: flex;
   justify-content: space-between;
@@ -17,11 +19,13 @@
   margin-bottom: 40px;
 }
 
+/* Emilia */
 .headerButtons {
   display: flex;
   gap: 10px;
 }
 
+/* Emilia */
 .helpBtn {
   border: 1px solid black;
   width: fit-content;
@@ -30,6 +34,8 @@
   cursor: pointer;
   font-size: 20px;
 }
+
+/* Emilia */
 .highscoreBtn {
   border: 1px solid black;
   width: fit-content;
@@ -38,6 +44,8 @@
   cursor: pointer;
   font-size: 20px;
 }
+
+/* Emilia */
 .impressumBtn {
   border: 1px solid black;
   width: fit-content;
@@ -46,6 +54,7 @@
   cursor: pointer;
   font-size: 20px;
 }
+/* Emilia */
 .homeBtn {
   border: 1px solid black;
   width: fit-content;

@@ -1,30 +1,32 @@
+/* Emilia */
 .impressum-container {
+  background-color: #fff9ef;
   max-width: 600px;
   margin: 2rem auto;
   font-family: Arial, sans-serif;
   padding: 0 1rem;
   color: #333;
 }
-
+/* Emilia */
 h1 {
   text-align: center;
   margin-bottom: 1rem;
 }
-
+/* Emilia */
 .contacts {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   margin: 2rem 0;
 }
-
+/* Emilia */
 .contact-card {
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 6px;
   background-color: #f9f9f9;
 }
-
+/* Emilia */
 .photo-placeholder {
   width: 100%;
   height: 100px;
@@ -37,20 +39,23 @@ h1 {
   margin-bottom: 0.5rem;
   border-radius: 4px;
 }
-
+/* Emilia */
 .contact-card p {
   margin: 0.2rem 0;
 }
 
+/* Emilia */
 .contact-card a {
   color: #0066cc;
   text-decoration: none;
 }
 
+/* Emilia */
 .contact-card a:hover {
   text-decoration: underline;
 }
 
+/* Emilia */
 .additional-info p {
   margin: 0.3rem 0;
 }

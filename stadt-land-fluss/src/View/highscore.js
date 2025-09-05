@@ -3,12 +3,14 @@ import "./highscore.css";
 import { Header } from "../components/Header.js";
 import { useNavigate } from "react-router-dom";
 
+/* Emilia */
 const highscores = [
   { position: 1, player: "EmiZocker", score: 100, crown: true },
   { position: 2, player: "TorgerLocker", score: 50, crown: false },
   { position: 3, player: "NikoRocker", score: 20, crown: false }
 ];
 
+/* Emilia */
 export function Highscore() {
   const navigate = useNavigate();
   

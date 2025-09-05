@@ -1,3 +1,4 @@
+/* Emilia */
 .login-window {
   width: 25%;
   height: 40%;
@@ -14,6 +15,7 @@
   z-index: 1000;
 }
 
+/* Emilia */
 .login-header {
   border-bottom: 2px solid #222;
   text-align: center;
@@ -23,6 +25,7 @@
   padding-bottom: 8px;
 }
 
+/* Emilia */
 .close-button {
   position: absolute;
   right: 14px;
@@ -34,10 +37,12 @@
   color: #222;
   transition: color 0.2s;
 }
+/* Emilia */
 .close-button:hover {
   color: #b00;
 }
 
+/* Emilia */
 .input-label {
   display: block;
   margin: 18px auto 6px auto;
@@ -46,6 +51,7 @@
   font-weight: 500;
 }
 
+/* Emilia */
 .input-field-password {
   width: 90%;
   padding: 7px;
@@ -57,6 +63,8 @@
   background: #fff;
   box-sizing: border-box;
 }
+
+/* Emilia */
 .input-field-username {
   width: 90%;
   padding: 7px;
@@ -68,6 +76,7 @@
   background: #fff;
   box-sizing: border-box;
 }
+/* Emilia */
 .login-window button:not(.close-button) {
   width: 100%;
   padding: 9px 0;
@@ -80,9 +89,11 @@
   font-weight: bold;
   transition: background 0.2s;
 }
+/* Emilia */
 .login-window button:not(.close-button):hover {
   background: #ffe082;
 }
+/* Emilia */
 .input-field {
   font-family: Arial, sans-serif;
   letter-spacing: normal;

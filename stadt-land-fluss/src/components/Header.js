@@ -2,13 +2,14 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../View/img/Logo.png";
 
-export const Header = ({ showHighscore = true, showLogin = true, showAdmin = true, showHelp = true, customButtons = [] }) => {
+export const Header = ({ showHighscore = true, showLogin = true, showAdmin = true, showHelp = true, showImpressum = true, customButtons = [] }) => {
   const navigate = useNavigate();
 
   const handleHighscore = () => navigate('/highscore');
   const handleLogin = () => navigate('/login');
   const handleAdmin = () => navigate('/admin');
-  const handleHelp = () => alert("Hier können Hilfetexte oder Anleitungen angezeigt werden.");
+  const handleHelp = () => navigate('/help');
+  const handleImpressum = () => navigate('/impressum');
 
   return (
     <header className="header">
@@ -16,8 +17,10 @@ export const Header = ({ showHighscore = true, showLogin = true, showAdmin = tru
         <img src={logo} alt="Logo" />
       </div>
       <div className="headerButtons">
-        <button className="impressumBtn">Impressum</button>
-        
+        {showImpressum && (
+          <button className="impressumBtn" onClick={handleImpressum}>Impressum</button>
+        )}
+
         {showHelp && (
           <button className="helpBtn" onClick={handleHelp}>Hilfe</button>
         )}

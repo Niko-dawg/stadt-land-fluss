@@ -1,3 +1,4 @@
+/* Emilia */
 header {
   display: flex;
   justify-content: space-between;
@@ -6,6 +7,7 @@ header {
   padding: 10px;
 }
 
+/* Emilia */
 .logo {
   background-size: contain;
   background-repeat: no-repeat;
@@ -18,11 +20,13 @@ header {
 
 }
 
+/* Emilia */
 .headerButtons {
   display: flex;
   gap: 10px;
 }
 
+/* Emilia */
 .helpBtn {
   border: 1px solid black;
   width: 60px;
@@ -32,6 +36,7 @@ header {
   font-size: 20px;
 }
 
+/* Emilia */
 .adminBtn {
   border: 1px solid black;
   background-color: white;
@@ -40,6 +45,7 @@ header {
   font-size: 20px;
 }
 
+/* Emilia */
 .loginBtn {
   border: 1px solid black;
   background-color: white;
@@ -48,6 +54,7 @@ header {
   font-size: 20px;
 }
 
+/* Emilia */
 .impressumBtn {
   border: 1px solid black;
   background-color: white;
@@ -56,6 +63,7 @@ header {
   font-size: 20px;
 }
 
+/* Emilia */
 .home.gameModeContainer {
   display: flex;
   border: 2px solid black;
@@ -63,6 +71,7 @@ header {
   height: 200px;
 }
 
+/* Emilia */
 .home.highscoreBtn {
   border: 1px solid black;
   width: 200px;
@@ -70,6 +79,7 @@ header {
   font-size: 24px
 }
 
+/* Emilia */
 .gameModeContent {
   background-color: #d3d3d3;
   flex: 1;
@@ -80,10 +90,12 @@ header {
   font-size: 24px;
   border-left: 1px solid black;
 }
+/* Emilia */
 .home.gameModeButtonWrapper {
   flex: 1;
   display: flex;
 }
+/* Emilia */
 .gameModeContent {
   width: 100%;
   height: 100%;
@@ -97,6 +109,7 @@ header {
   border: none;
   cursor: pointer;
 }
+/* Emilia */
 .gameModeContent:hover {
   background-color: #f3e7d9;
   border: 2px #a67c52 solid;

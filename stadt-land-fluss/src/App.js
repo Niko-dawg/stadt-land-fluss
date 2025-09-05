@@ -5,6 +5,8 @@ import { Spiel } from './View/spiel.js';
 import { Highscore } from './View/highscore.js';
 import { LoginWindow } from './View/login.js';
 import Admin from './View/admin.js';
+import HelpPage from './View/help.js';
+import Impressum from './View/impressum.js';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/highscore" element={<Highscore />} />
         <Route path="/login" element={<LoginWindow />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/help" element={<HelpPage />} />
+        <Route path="/impressum" element={<Impressum />} />
       </Routes>
     </Router>
   );

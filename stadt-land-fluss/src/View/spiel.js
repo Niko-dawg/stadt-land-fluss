@@ -3,6 +3,7 @@ import "./spiel.css";
 import { Header } from "../components/Header.js";
 import { useNavigate } from "react-router-dom";
 
+/* Emilia */
 export function Spiel() {
   const navigate = useNavigate();
   

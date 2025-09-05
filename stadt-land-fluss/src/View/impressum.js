@@ -1,7 +1,22 @@
 import React from 'react';
-import './Impressum.css';
+import './impressum.css'; 
+import logo from './img/Logo.png'; 
+import { useNavigate } from 'react-router-dom';
+import { Header } from '../components/Header.js';
 
+/* Emilia */
 const Impressum = () => {
+  const navigate = useNavigate();
+  
+  const customButtons = [
+    {
+      text: "Home",
+      className: "homeBtn",
+      title: "Home", 
+      onClick: () => navigate('/')
+    }
+  ];
+
   const contacts = [
     {
       imgAlt: 'Foto Emilia Lohmann',
@@ -25,6 +40,16 @@ const Impressum = () => {
 
   return (
     <div className="impressum-container">
+
+      <Header 
+              showLogin={false} 
+              showAdmin={false} 
+              showHighscore={false}
+              showHelp={false}
+              showImpressum={false}
+              customButtons={customButtons}
+            />
+
       <h1>Impressum</h1>
       <p>Dieses Spiel ist ein nicht-kommerzielles Schulprojekt.</p>
 

@@ -3,9 +3,12 @@ import "./home.css";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header.js";
 
+/* Emilia */
 const GameMode = ({ title, players, onClick }) => (
   <div className="home-gameModeContainer">
     <div className="home-gameModeButtonWrapper">
+      <br />
+      <br />
       <button className="gameModeContent" onClick={onClick}>
         <h2>{title}</h2>
         {players !== undefined && <p>Spielende Spieler : {players}</p>}
@@ -14,6 +17,7 @@ const GameMode = ({ title, players, onClick }) => (
   </div>
 );
 
+/* Emilia */
 export function Test() {
   const navigate = useNavigate();
 

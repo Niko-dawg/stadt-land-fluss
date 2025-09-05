@@ -1,3 +1,4 @@
+/* Emilia */
 .help-page {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #222;
@@ -8,6 +9,7 @@
   background-color: #fff;
 }
 
+/* Emilia */
 .help-header {
   display: flex;
   justify-content: space-between;
@@ -20,18 +22,21 @@
   z-index: 10;
 }
 
+/* Emilia */
 .logo-container {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
+/* Emilia */
 .logo {
   height: 40px;
   width: 40px;
   object-fit: contain;
 }
 
+/* Emilia */
 .logo-text {
   font-weight: 700;
   font-size: 1.3rem;
@@ -39,6 +44,7 @@
   user-select: none;
 }
 
+/* Emilia */
 .home-button {
   background-color: #ffffff;
   color: rgb(0, 0, 0);
@@ -51,17 +57,20 @@
   transition: background-color 0.3s ease;
 }
 
+/* Emilia */
 .home-button:hover,
 .home-button:focus {
   background-color: #755c1d;
   outline: none;
 }
 
+/* Emilia */
 .help-content h1 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
 
+/* Emilia */
 .help-content h2 {
   font-size: 1.4rem;
   margin-top: 1.5rem;
@@ -69,12 +78,14 @@
   color: #583e13;
 }
 
+/* Emilia */
 .help-content hr {
   border: none;
   border-top: 1px solid #ddd;
   margin: 1.5rem 0;
 }
 
+/* Emilia */
 .help-content p,
 .help-content ul,
 .help-content ol,
@@ -83,11 +94,13 @@
   margin-bottom: 1rem;
 }
 
+/* Emilia */
 .help-content ul,
 .help-content ol {
   padding-left: 1.5rem;
 }
 
+/* Emilia */
 .help-content blockquote {
   border-left: 4px solid #ffd48a;
   padding-left: 1rem;
@@ -97,6 +110,7 @@
   margin-left: 0;
 }
 
+/* Emilia */
 .help-content code {
   background-color: #f4f4f4;
   padding: 0.1rem 0.3rem;
@@ -104,16 +118,19 @@
   font-family: monospace;
 }
 
+/* Emilia */
 .help-content dl dt {
   font-weight: 700;
   margin-top: 0.8rem;
 }
 
+/* Emilia */
 .help-content dl dd {
   margin-left: 1rem;
   margin-bottom: 0.8rem;
 }
 
+/* Emilia */
 @media (max-width: 600px) {
   .help-page {
     padding: 1rem;
