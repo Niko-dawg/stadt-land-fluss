@@ -1,3 +1,4 @@
+
 let highscores = [];
 
 export function addHighscore() {
@@ -18,3 +19,5 @@ function validatePoints(points) {
 }
 
 module.exports = { addHighscore, getHighscores, validatePoints };
+
+/* position: 1, player: "Anna", score: 150, crown: true },* /

@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../View/img/Logo.png";
 
+/* Emilia und Torga */
+
 export const Header = ({ showHighscore = true, showLogin = true, showAdmin = true, showHelp = true, showImpressum = true, customButtons = [] }) => {
   const navigate = useNavigate();
 

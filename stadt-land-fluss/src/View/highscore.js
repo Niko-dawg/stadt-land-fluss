@@ -2,12 +2,20 @@ import React from "react";
 import "./highscore.css";
 import { Header } from "../components/Header.js";
 import { useNavigate } from "react-router-dom";
+import {getHighscores, addHighscore, validatePoints } from "../Model/highscore_logic.js";
+
+/* Emilia *
+const highscore = getHighscores();
+const newEntry = addHighscore('00', 75);
+const validatePointsResult = validatePoints(75);
 
 /* Emilia */
+
 const highscores = [
-  { position: 1, player: "EmiZocker", score: 100, crown: true },
-  { position: 2, player: "TorgerLocker", score: 50, crown: false },
-  { position: 3, player: "NikoRocker", score: 20, crown: false }
+  { position: 1, player: "Anna", score: 150, crown: true },
+  { position: 2, player: "Benny", score: 100, crown: false },
+  { position: 3, player: "Clara", score: 75, crown: false },
+  { position: 4, player: "David", score: 50, crown: false },
 ];
 
 /* Emilia */
