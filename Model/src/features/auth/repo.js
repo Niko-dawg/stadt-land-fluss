@@ -1,5 +1,5 @@
 // DB-Zugriffe für User (nur SQL hier)
-//Autor: Torga Aslan
+//Autoren: Torga Aslan, Nikolas Zimmer
 const db = require('../../db');
 
 // User per E-Mail holen (für Login)
