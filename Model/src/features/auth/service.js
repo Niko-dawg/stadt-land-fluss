@@ -31,7 +31,7 @@ async function login({ email, passwort }) {
   if (!ok) throw new Error('INVALID_CREDENTIALS');
   // Optional: is_approved/is_locked schon prüfen
   //Rückgabe der User-Daten
-  return { user: { id: u.id, username: u.username, email: u.email } }; // Token folgt
+  return { user: { id: u.id, username: u.username, email: u.email, is_admin: u.is_admin } }; // Token folgt
 }
 
 module.exports = { register, login };

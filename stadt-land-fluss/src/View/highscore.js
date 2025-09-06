@@ -2,7 +2,7 @@ import React from "react";
 import "./highscore.css";
 import { Header } from "../components/Header.js";
 import { useNavigate, useParams } from "react-router-dom";
-import {getHighscores, addHighscore, validatePoints } from "../Model/highscore_logic.js";
+// import {getHighscores, addHighscore, validatePoints } from "../Model/highscore_logic.js";
 
 /* Emilia
 const highscore = getHighscores();
