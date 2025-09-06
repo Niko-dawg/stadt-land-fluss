@@ -4,14 +4,24 @@ import logo from "../View/img/Logo.png";
 
 /* Emilia und Torga */
 
-export const Header = ({ showHighscore = true, showLogin = true, showAdmin = true, showHelp = true, showImpressum = true, customButtons = [] }) => {
+export const Header = ({ 
+  showHighscore = true, 
+  showLogin = true, 
+  showAdmin = true, 
+  showHelp = true, 
+  showImpressum = true,
+  showHome = false,
+  customButtons = [], 
+  onHighscore 
+}) => {
   const navigate = useNavigate();
 
-  const handleHighscore = () => navigate('/highscore');
+  const handleHighscore = onHighscore || (() => navigate('/highscore'));
   const handleLogin = () => navigate('/login');
   const handleAdmin = () => navigate('/admin');
   const handleHelp = () => navigate('/help');
   const handleImpressum = () => navigate('/impressum');
+  const handleHome = () => navigate('/');
 
   return (
     <header className="header">
@@ -39,7 +49,11 @@ export const Header = ({ showHighscore = true, showLogin = true, showAdmin = tru
           <button className="loginBtn" onClick={handleLogin}>Log in</button>
         )}
 
-        {/* Custom Buttons für spezielle Seiten */}
+        {showHome && (
+          <button className="homeBtn" onClick={handleHome}>Home</button>
+        )}
+
+        {/* Custom Buttons für spezielle Seiten... in speziellen Fällen einfach erweiterbar */}
         {customButtons.map((button, index) => (
           <button 
             key={index} 

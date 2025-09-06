@@ -13,8 +13,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Test />} />
-        <Route path="/spiel" element={<Spiel />} />
+        <Route path="/spiel/:gameMode?" element={<Spiel />} />
         <Route path="/highscore" element={<Highscore />} />
+        <Route path="/highscore/:from?" element={<Highscore />} />
         <Route path="/login" element={<LoginWindow />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/help" element={<HelpPage />} />

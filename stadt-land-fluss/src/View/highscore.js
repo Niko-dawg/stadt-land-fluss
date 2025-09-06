@@ -1,13 +1,14 @@
 import React from "react";
 import "./highscore.css";
 import { Header } from "../components/Header.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {getHighscores, addHighscore, validatePoints } from "../Model/highscore_logic.js";
 
-/* Emilia *
+/* Emilia
 const highscore = getHighscores();
 const newEntry = addHighscore('00', 75);
 const validatePointsResult = validatePoints(75);
+*/
 
 /* Emilia */
 
@@ -22,21 +23,18 @@ const highscores = [
 export function Highscore() {
   const navigate = useNavigate();
   
-  const customButtons = [
-    {
-      text: "Home",
-      className: "homeBtn",
-      title: "Home", 
-      onClick: () => navigate('/')
-    }
-  ];
+  let customButtons = [];
 
+  // TODO: Später erweitern wenn Single/Multiplayer unterschieden wird
+  // Für jetzt erstmal einfach halten
+  
   return (
     <div className="highscore-container">
       <Header 
         showLogin={false} 
         showAdmin={false} 
         showHighscore={false}
+        showHome={true}
         customButtons={customButtons}
       />
       <div className="highscore-table-container">

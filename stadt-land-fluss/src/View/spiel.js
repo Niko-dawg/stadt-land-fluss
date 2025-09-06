@@ -1,27 +1,19 @@
 import React from "react";
 import "./spiel.css";
 import { Header } from "../components/Header.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 /* Emilia */
 export function Spiel() {
   const navigate = useNavigate();
+  // TODO: Später URL-Parameter für Single/Multiplayer nutzen
   
-  const customButtons = [
-    {
-      text: "Home",
-      className: "homeBtn",
-      title: "Home",
-      onClick: () => navigate('/')
-    }
-  ];
-
   return (
       <div className="container">
         <Header 
           showLogin={false} 
-          showAdmin={false} 
-          customButtons={customButtons}
+          showAdmin={false}
+          showHome={true}
         />
         <div className="secondheader">
         <div className="timer">60</div>
