@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./spiel.css";
 import { Header } from "../components/Header.js";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 /* Emilia */
 export function Spiel() {
@@ -96,8 +96,6 @@ export function Spiel() {
     }
   ];
 
-  // TODO: Später URL-Parameter für Single/Multiplayer nutzen
-  
   return (
     <div className="container">
       <Header 
@@ -107,14 +105,6 @@ export function Spiel() {
       />
       <div className="secondheader">
         <div className="timer">{secondsLeft}</div>
-      <div className="container">
-        <Header 
-          showLogin={false} 
-          showAdmin={false}
-          showHome={true}
-        />
-        <div className="secondheader">
-        <div className="timer">60</div>
         <div className="letter"> 
           <p>Der gesuchte Buchstabe ist :</p>
           <div className="big-letter">{currentLetter}</div>
