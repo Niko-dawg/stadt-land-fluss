@@ -18,9 +18,9 @@ async function register(req, res) {
 async function login(req, res) {
   try {
     //Auslesen des req.body und Weiterleitung an den Service
-    const { user } = await svc.login(req.body || {});
-    //Bei Erfolg: User-Daten werden zurückgeschickt
-    res.json({ user, note: 'Dev-Mode: Kein Token. JWT folgt.' });
+    const { user, token } = await svc.login(req.body || {});
+    //Bei Erfolg: User-Daten UND Token werden zurückgeschickt
+    res.json({ user, token });
   } catch (e) {
     // Fehlerbehandlung: Mappings der Fehler zu HTTP-Status-Codes
     const map = { MISSING_FIELDS: 400, INVALID_CREDENTIALS: 401 };

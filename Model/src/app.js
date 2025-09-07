@@ -6,6 +6,7 @@ const cors = require('cors');
 
 // Feature-Router
 const authRouter = require('./features/auth/router');
+const adminRouter = require('./features/admin/router');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json()); // Middleware zum Parsen von JSON-Anfragen
 
 // Features mounten
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 
 module.exports = app;

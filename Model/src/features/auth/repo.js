@@ -1,8 +1,9 @@
 // DB-Zugriffe für User (nur SQL hier)
 //Autoren: Torga Aslan, Nikolas Zimmer
 const db = require('../../db');
+const dataStore = require('../../store/DataStore');
 
-// User per E-Mail holen (für Login)
+// User per E-Mail holen (für Login) - MUSS noch DB verwenden wegen Password
 async function findByEmail(email) {
   const { rows } = await db.query(
      `SELECT 

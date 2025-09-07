@@ -43,8 +43,11 @@ export function LoginWindow() {
       if (response.ok) {
         // Login erfolgreich
         console.log('Login erfolgreich:', data.user);
-        // TODO: User-Daten im localStorage/Context speichern
+        
+        // User-Daten UND Token speichern
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);  // Konsistent mit admin.js
+        
         navigate('/');
       } else {
         // Login fehlgeschlagen

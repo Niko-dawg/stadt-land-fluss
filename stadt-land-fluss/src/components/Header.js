@@ -48,6 +48,7 @@ export const Header = ({
   const handleLogin = () => navigate('/login');
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('authToken'); // Token ebenfalls entfernen
     setUser(null);
     navigate('/login');
   };
