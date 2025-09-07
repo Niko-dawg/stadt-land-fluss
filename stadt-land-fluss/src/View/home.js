@@ -22,11 +22,11 @@ export function Test() {
   const navigate = useNavigate();
 
   const handleSinglePlayer = () => {
-    navigate('/spiel');
+    navigate('/spiel/single');
   };
   
   const handleMultiPlayer = () => {
-    navigate('/spiel');
+    navigate('/spiel/multi');
   };
 
   return (

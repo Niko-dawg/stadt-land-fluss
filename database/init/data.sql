@@ -43,3 +43,10 @@ CREATE TABLE game_entries (
         REFERENCES categories(category_id)
         ON DELETE CASCADE
 );
+
+-- Test-User für Development
+-- Passwort für test@example.com: "password123"
+-- Passwort für admin@example.com: "admin123"
+INSERT INTO users (username, email, password_hash, is_admin) VALUES
+('testuser', 'test@example.com', '$2a$10$B24142b/rrVBjHE.7veI9eH7TKheGKcb0n49fAoWMHGziecLDc0Gm', FALSE),
+('admin', 'admin@example.com', '$2a$10$4tutlgU7y8k1zSPbGimq6uWT0R1RDD9ml8p/8EHS8jOYPJAGfhzMa', TRUE);
