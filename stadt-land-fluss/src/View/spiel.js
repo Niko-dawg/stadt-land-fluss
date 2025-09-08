@@ -73,6 +73,20 @@ export function Spiel() {
       buchstabe: currentLetter,
     };
 
+    fetch("../../model/points/router.js", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"},
+      body: JSON.stringify(antworten)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Erfolg:", data);
+    })
+    .catch((error) => {
+      console.error("Fehler:", error);
+    });
+
     console.log("Antworten gespeichert:", antworten);
 
     // Hier kannst du die Daten weiterverarbeiten, z.B. an API senden
