@@ -73,10 +73,11 @@ export function Spiel() {
       buchstabe: currentLetter,
     };
 
-    fetch("../../model/points/router.js", {
+    fetch("../../Model/points/router.js", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"},
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(antworten)
     })
     .then(response => response.json())
