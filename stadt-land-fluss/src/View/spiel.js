@@ -73,10 +73,19 @@ export function Spiel() {
       buchstabe: currentLetter,
     };
 
-    fetch("../../model/points/highscore_logic.js")
-      .then(response => response.json())
-      .then(data => {antworten=data;})
-      .catch(error => console.error('Error fetching data:', error));
+    fetch("../../model/points/router.js", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"},
+      body: JSON.stringify(antworten)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Erfolg:", data);
+    })
+    .catch((error) => {
+      console.error("Fehler:", error);
+    });
 
     console.log("Antworten gespeichert:", antworten);
 
