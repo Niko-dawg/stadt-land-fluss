@@ -44,7 +44,7 @@ export function Spiel() {
         return updated;
       });
     }
-
+   
     if (secondsLeft <= 0) return; // Timer stoppen bei 0
 
     const timerId = setInterval(() => {
@@ -70,7 +70,6 @@ export function Spiel() {
       fluss,
       tier,
       buchstabe: currentLetter,
-      zeitVerbleibend: secondsLeft,
     };
 
     console.log("Antworten gespeichert:", antworten);
