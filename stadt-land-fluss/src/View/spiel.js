@@ -73,6 +73,11 @@ export function Spiel() {
       buchstabe: currentLetter,
     };
 
+    fetch("../../model/points/highscore_logic.js")
+      .then(response => response.json())
+      .then(data => {antworten=data;})
+      .catch(error => console.error('Error fetching data:', error));
+
     console.log("Antworten gespeichert:", antworten);
 
     // Hier kannst du die Daten weiterverarbeiten, z.B. an API senden
