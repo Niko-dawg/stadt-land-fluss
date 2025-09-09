@@ -35,6 +35,11 @@ class DataStore {
       
       this.initialized = true;
       
+      // Debug: Zeige wie die Daten aussehen
+      console.log('📊 usersResult.rows:', JSON.stringify(usersResult.rows, null, 2));
+      console.log('📊 categoriesResult.rows:', JSON.stringify(categoriesResult.rows, null, 2));
+      console.log('📊 wordsResult.rows:', JSON.stringify(wordsResult.rows, null, 2));
+      
       console.log(`✅ Daten geladen: ${this.users.length} Users, ${this.categories.length} Categories, ${this.words.length} Words`);
       
     } catch (error) {
