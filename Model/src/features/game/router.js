@@ -12,7 +12,6 @@ router.get('/status', gameController.getGameStatus);
 
 // Alle anderen Routes brauchen Authentication
 router.post('/join', authenticateToken, gameController.joinGame);
-router.post('/start', authenticateToken, gameController.startGame);
 router.post('/submit', authenticateToken, gameController.submitAnswers);
 router.post('/leave', authenticateToken, gameController.leaveGame);
 

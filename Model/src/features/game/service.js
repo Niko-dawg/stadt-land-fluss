@@ -1,15 +1,14 @@
 // Game Service - Business Logic
 // Autor: Torga & GitHub Copilot
 
-const DataStore = require('../../store/DataStore');
-const dataStore = new DataStore();
+const dataStore = require('../../store/DataStore'); // Schon eine Instanz (Singleton)
 
 // Globaler Game State (Ein Raum für alle)
 let globalGameState = {
-    status: 'lobby', // 'lobby', 'playing', 'scoring', 'finished'
-    players: [], // [{ id, name, connected, answers, points }]
+    status: 'lobby', // 'lobby', 'playing', 'results'
+    players: [], // [{ id, name, connected, answers, roundPoints }]
     currentRound: null, // { number, letter, categories, timeLeft, startTime }
-    rounds: [], // Verlauf aller Runden
+    lastRoundResults: null, // Ergebnisse der letzten Runde für results-Screen
     timer: null // Timer-Referenz
 };
 
@@ -25,18 +24,26 @@ function getGameState() {
         updateTimer();
     }
     
-    return {
+    const baseState = {
         status: globalGameState.status,
         players: globalGameState.players.map(p => ({
             id: p.id,
             name: p.name,
             connected: p.connected,
             hasSubmitted: p.answers && Object.keys(p.answers).length > 0,
-            points: p.points || 0
-        })),
-        currentRound: globalGameState.currentRound,
-        roundNumber: globalGameState.rounds.length + 1
+            roundPoints: p.roundPoints || 0
+        }))
     };
+
+    // Je nach Status verschiedene Daten hinzufügen
+    if (globalGameState.status === 'playing') {
+        baseState.currentRound = globalGameState.currentRound;
+    } else if (globalGameState.status === 'results') {
+        baseState.lastRoundResults = globalGameState.lastRoundResults;
+        baseState.nextRoundIn = globalGameState.nextRoundIn || 0;
+    }
+    
+    return baseState;
 }
 
 // DataStore Hilfsfunktion
@@ -47,11 +54,11 @@ function ensureDataStoreInitialized() {
 }
 
 // Spieler beitritt
-function joinGame(userId, playerName) {
+function joinGame(user) {
     ensureDataStoreInitialized();
     
     // Prüfen ob User bereits im Spiel
-    const existingPlayer = globalGameState.players.find(p => p.id === userId);
+    const existingPlayer = globalGameState.players.find(p => p.id === user.id);
     if (existingPlayer) {
         throw new Error('You are already in this game');
     }
@@ -62,64 +69,47 @@ function joinGame(userId, playerName) {
     }
 
     const newPlayer = {
-        id: userId,  // User-ID aus DB
-        name: playerName,
+        id: user.id,  // User-ID aus JWT Token (ursprünglich aus DB)
+        name: user.username, // Username aus JWT Token
         connected: true,
         answers: {},
-        points: 0
+        roundPoints: 0
     };
 
     globalGameState.players.push(newPlayer);
 
-    return {
-        success: true,
-        playerId: userId,
-        message: `Player ${playerName} joined the game`
-    };
-}
-
-// Spiel starten
-function startGame() {
-    ensureDataStoreInitialized();
-    
-    if (globalGameState.status !== 'lobby') {
-        throw new Error('Game can only be started from lobby');
+    // Wenn erster Spieler und Status ist lobby → Spiel automatisch starten
+    if (globalGameState.players.length === 1 && globalGameState.status === 'lobby') {
+        startNewRound();
+        return {
+            success: true,
+            playerId: user.id,
+            message: `${user.username} joined and started the game!`,
+            gameStarted: true
+        };
     }
-
-    if (globalGameState.players.length === 0) {
-        throw new Error('Need at least one player to start');
-    }
-
-    startNewRound();
 
     return {
         success: true,
-        message: 'Game started!'
+        playerId: user.id,
+        message: `Player ${user.username} joined the game`,
+        gameStarted: false
     };
 }
 
 // Neue Runde starten
 function startNewRound() {
-    // Zufälligen Buchstaben wählen
-    const usedLetters = globalGameState.rounds.map(r => r.letter);
-    const availableLetters = LETTERS.filter(l => !usedLetters.includes(l));
-    
-    if (availableLetters.length === 0) {
-        // Alle Buchstaben durch - Spiel beenden
-        globalGameState.status = 'finished';
-        return;
-    }
+    // Zufälligen Buchstaben wählen (kann sich wiederholen für infinite game)
+    const randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
 
-    const randomLetter = availableLetters[Math.floor(Math.random() * availableLetters.length)];
-
-    // Alle Spieler-Antworten zurücksetzen
+    // Alle Spieler-Antworten und Rundenpunkte zurücksetzen
     globalGameState.players.forEach(player => {
         player.answers = {};
+        player.roundPoints = 0;
     });
 
     // Neue Runde erstellen
     globalGameState.currentRound = {
-        number: globalGameState.rounds.length + 1,
         letter: randomLetter,
         categories: CATEGORIES,
         timeLeft: ROUND_TIME,
@@ -127,6 +117,9 @@ function startNewRound() {
     };
 
     globalGameState.status = 'playing';
+    globalGameState.lastRoundResults = null; // Clear previous results
+
+    console.log(`🎮 New round started with letter: ${randomLetter}`);
 
     // Timer starten
     startRoundTimer();
@@ -164,16 +157,13 @@ function allPlayersSubmitted() {
 }
 
 // Antworten einreichen
-function submitAnswers(userId, answers) {
+function submitAnswers(user, answers) {
     if (globalGameState.status !== 'playing') {
         throw new Error('No active round to submit answers to');
     }
 
-    const player = globalGameState.players.find(p => p.id === userId);
-    if (!player) {
-        throw new Error('Player not found');
-    }
-
+    const player = globalGameState.players.find(p => p.id === user.id);
+    
     // Antworten validieren und speichern
     const validatedAnswers = {};
     CATEGORIES.forEach(category => {
@@ -190,39 +180,58 @@ function submitAnswers(userId, answers) {
 }
 
 // Runde beenden
-function endRound() {
+async function endRound() {
     if (globalGameState.timer) {
         clearInterval(globalGameState.timer);
         globalGameState.timer = null;
     }
 
     // Punkte berechnen
-    calculatePoints();
+    await calculateAndSavePoints();
 
-    // Runde zum Verlauf hinzufügen
-    globalGameState.rounds.push({
-        ...globalGameState.currentRound,
-        playerAnswers: globalGameState.players.map(p => ({
-            playerId: p.id,
-            playerName: p.name,
-            answers: p.answers
+    // Rundenergebnisse für Frontend vorbereiten
+    globalGameState.lastRoundResults = {
+        letter: globalGameState.currentRound.letter,
+        playerResults: globalGameState.players.map(p => ({
+            name: p.name,
+            answers: p.answers,
+            roundPoints: p.roundPoints,
+            details: getPlayerRoundDetails(p, globalGameState.currentRound.letter)
         }))
-    });
+    };
 
-    globalGameState.status = 'scoring';
+    globalGameState.status = 'results';
     globalGameState.currentRound = null;
 
-    // Nach 10 Sekunden automatisch zur Lobby (für nächste Runde)
-    setTimeout(() => {
-        if (globalGameState.status === 'scoring') {
-            globalGameState.status = 'lobby';
+    console.log(`📊 Round ended. Results:`, globalGameState.lastRoundResults.playerResults.map(p => `${p.name}: ${p.roundPoints}pts`));
+
+    // Nach 10 Sekunden automatisch nächste Runde starten (wenn Spieler da sind)
+    let countdown = 10;
+    globalGameState.nextRoundIn = countdown;
+    
+    const countdownTimer = setInterval(() => {
+        countdown--;
+        globalGameState.nextRoundIn = countdown;
+        
+        if (countdown <= 0) {
+            clearInterval(countdownTimer);
+            
+            // Wenn noch Spieler da sind → nächste Runde
+            if (globalGameState.players.length > 0) {
+                startNewRound();
+            } else {
+                // Keine Spieler mehr → zurück zur Lobby
+                globalGameState.status = 'lobby';
+                globalGameState.lastRoundResults = null;
+            }
         }
-    }, 10000);
+    }, 1000);
 }
 
-// Punkte berechnen
-function calculatePoints() {
+// Punkte berechnen und in DB speichern
+async function calculateAndSavePoints() {
     const currentLetter = globalGameState.currentRound.letter.toLowerCase();
+    const db = require('../../db'); // DB-Verbindung
 
     CATEGORIES.forEach(categoryName => {
         // Category-ID aus DataStore holen
@@ -247,7 +256,7 @@ function calculatePoints() {
         });
 
         // Punkte vergeben
-        answers.forEach(a => {
+        answers.forEach(async a => {
             const player = globalGameState.players.find(p => p.id === a.playerId);
             const normalizedAnswer = a.answer.toLowerCase().trim();
             
@@ -262,13 +271,13 @@ function calculatePoints() {
             const wordInDB = dataStore.findWordInCategory(a.answer, categoryData.category_id);
             if (!wordInDB) {
                 console.log(`❌ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Not in database`);
-                return; // 0 Punkte
+                return; // 0 Punkte CHEF SAGT MORGEN ABSTIMMUNG NOCH EINBAUEN SONST GIBTS SCHLÄGE DANKESCHÖN
             }
 
-            // 3. Grundpunkte basierend auf Wortlänge
+            // 3. Grundpunkte basierend auf Wortlänge::::80% richtiges Wort soll trotzdem Punkte geben sagt Chef
             let points = a.answer.length;
 
-            // 4. Bonus für einzigartige Antworten
+            // 4. Bonus für einzigartige Antworten 
             const isUnique = answerCounts[normalizedAnswer] === 1;
             if (isUnique) {
                 points += 5;
@@ -277,14 +286,56 @@ function calculatePoints() {
                 console.log(`✅ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - ${points} points`);
             }
 
-            player.points = (player.points || 0) + points;
+            player.roundPoints = (player.roundPoints || 0) + points;
+
+            // Antwort in game_entries speichern
+            if (points > 0) {
+                try {
+                    await db.query(`
+                        INSERT INTO game_entries (user_id, category_id, answer, points, is_multiplayer)
+                        VALUES ($1, $2, $3, $4, true)
+                    `, [a.playerId, categoryData.category_id, a.answer, points]);
+                    
+                    // DataStore synchronisieren - neue Entry hinzufügen
+                    dataStore.addGameEntry({
+                        game_entries_id: null, // Wird von DB generiert
+                        user_id: a.playerId,
+                        category_id: categoryData.category_id,
+                        answer: a.answer,
+                        points: points,
+                        is_multiplayer: true
+                    });
+                    
+                    console.log(`💾 Saved entry: ${a.playerName} - ${a.answer} (${points}pts) to DB + DataStore`);
+                } catch (error) {
+                    console.error(`❌ Failed to save game entry for ${a.playerName}:`, error);
+                }
+            }
         });
     });
+
+    // Keine separaten Punkte-Updates mehr nötig - alles in game_entries!
+}
+
+// Hilfsfunktion für detaillierte Rundenergebnisse
+function getPlayerRoundDetails(player, letter) {
+    const details = {};
+    CATEGORIES.forEach(category => {
+        const answer = player.answers[category] || '';
+        if (answer) {
+            details[category] = {
+                answer: answer,
+                valid: answer.toLowerCase().startsWith(letter.toLowerCase()),
+                // Weitere Details könnten hier hinzugefügt werden
+            };
+        }
+    });
+    return details;
 }
 
 // Spieler verlässt
-function leaveGame(userId) {
-    const playerIndex = globalGameState.players.findIndex(p => p.id === userId);
+function leaveGame(user) {
+    const playerIndex = globalGameState.players.findIndex(p => p.id === user.id);
     if (playerIndex === -1) {
         throw new Error('Player not found');
     }
@@ -313,15 +364,16 @@ function resetGame() {
         status: 'lobby',
         players: [],
         currentRound: null,
-        rounds: [],
+        lastRoundResults: null,
         timer: null
     };
+    
+    console.log('🔄 Game reset to lobby');
 }
 
 module.exports = {
     getGameState,
     joinGame,
-    startGame,
     submitAnswers,
     leaveGame,
     resetGame
