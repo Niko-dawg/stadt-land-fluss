@@ -1,4 +1,3 @@
-
 let highscores = [   { userId: "emilia", points: 95, createdAt: new Date("2025-09-02T14:30:00Z") } ];
 
 function calculatePoints(answer, isValidWord, isUnique) {
