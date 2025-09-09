@@ -1,5 +1,5 @@
 // Game Controller - HTTP Request Handling
-// Autor: Torga & GitHub Copilot
+// Autor: Torga & Emilia
 
 const gameService = require('./service');
 

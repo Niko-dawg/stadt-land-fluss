@@ -1,5 +1,5 @@
 // Game Service - Business Logic
-// Autor: Torga & GitHub Copilot
+// Autor: Torga & Emilia
 
 const dataStore = require('../../store/DataStore'); // Schon eine Instanz (Singleton)
 

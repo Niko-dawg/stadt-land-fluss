@@ -1,5 +1,5 @@
 // Game Router - Route Definitions
-// Autor: Torga & GitHub Copilot
+// Autor: Torga & Emilia
 
 const express = require('express');
 const gameController = require('./controller');
