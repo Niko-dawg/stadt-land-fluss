@@ -73,7 +73,7 @@ export function Spiel() {
       buchstabe: currentLetter,
     };
 
-    fetch("../../Model/points/router.js", {
+    fetch("'/api/points/check", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -89,18 +89,11 @@ export function Spiel() {
     });
 
     console.log("Antworten gespeichert:", antworten);
-
-    // Hier kannst du die Daten weiterverarbeiten, z.B. an API senden
-    processAnswers(antworten);
-
+    
     // Timer neu starten
     setSecondsLeft(60);
   };
 
-  const processAnswers = (data) => {
-    // Beispiel: Datenverarbeitung
-    console.log("Verarbeite Antworten:", data);
-  };
 
   const customButtons = [
     {
