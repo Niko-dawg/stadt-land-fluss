@@ -1,3 +1,5 @@
+--Autor: Nikolas Paul Zimmer
+--Datenbank-Init für Stadt-Land-Fluss
 --Tabelle für Benutzer, mit email, username, Passwort-Hash und Rolle (Admin/Normal)
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
@@ -47,11 +49,13 @@ CREATE TABLE game_entries (
 -- Test-User für Development
 -- Passwort für test@example.com: "password123"
 -- Passwort für admin@example.com: "admin123"
+--Benutzer einfügen
 INSERT INTO users (username, email, password_hash, is_admin) VALUES
 ('testuser', 'test@example.com', '$2a$10$B24142b/rrVBjHE.7veI9eH7TKheGKcb0n49fAoWMHGziecLDc0Gm', FALSE),
 ('admin', 'admin@example.com', '$2a$10$4tutlgU7y8k1zSPbGimq6uWT0R1RDD9ml8p/8EHS8jOYPJAGfhzMa', TRUE);
 
 -- Kategorien für Stadt-Land-Fluss
+--Kategorien einfügen
 INSERT INTO categories (category_name) VALUES
 ('Stadt'),
 ('Land'), 
@@ -59,6 +63,7 @@ INSERT INTO categories (category_name) VALUES
 ('Tier');
 
 -- Beispiel-Wörter
+--Gültige Wörter einfügen
 INSERT INTO valid_words (category_id, word) VALUES
 (1, 'Berlin'),
 (1, 'Hamburg'),

@@ -17,6 +17,7 @@ async function checkAnswers(answers) {
   async function validateAnswer(answer, categoryName) {
     if (!answer || answer.trim() === "") {
       return { valid: false, points: 0, reason: "Empty answer" };
+      console.log("Leere Antwort für Kategorie:", categoryName);
     }
 
     const categoryId = categoryMap[categoryName];

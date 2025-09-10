@@ -1,5 +1,6 @@
 let highscores = [   { userId: "emilia", points: 95, createdAt: new Date("2025-09-02T14:30:00Z") } ];
 
+//Punkteberechnung
 function calculatePoints(answer, isValidWord, isUnique) {
   let basePoints = 0;
   if (!isValidWord) return 0; //ungültig keine Punkte
@@ -22,15 +23,13 @@ function addHighscore(answer, isValidWord, isUnique, userId) {
 
 function getHighscores() {
   //  return highscores;
-    //Sortieren muss noch eingebaut werden!!!!
     return highscores.sort((a, b) => b.points - a.points);
-
+  //.sort sortiert die liste absteigend nach Punkten
 }
 
 
-//Werte Umschreiben für das Frontend:
 // position: 1, player: "Anna", score: 150, crown: true }
-
+//Formatiert die Highscores für das Frontend
 function formatHighscoresForFrontend() {
     return getHighscores().map((entry, index) => ({
         position: index + 1,
@@ -40,4 +39,4 @@ function formatHighscoresForFrontend() {
     }));
 }
 
-module.exports = { addHighscore, getHighscores, validatePoints, formatHighscoresForFrontend };
+module.exports = { addHighscore, getHighscores, formatHighscoresForFrontend };
