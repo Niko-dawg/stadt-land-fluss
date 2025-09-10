@@ -14,5 +14,6 @@ router.get('/status', gameController.getGameStatus);
 router.post('/join', authenticateToken, gameController.joinGame);
 router.post('/submit', authenticateToken, gameController.submitAnswers);
 router.post('/leave', authenticateToken, gameController.leaveGame);
+router.post('/vote', authenticateToken, gameController.vote);
 
 module.exports = router;

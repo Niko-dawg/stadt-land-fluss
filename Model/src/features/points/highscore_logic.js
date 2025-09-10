@@ -40,4 +40,4 @@ function formatHighscoresForFrontend() {
     }));
 }
 
-module.exports = { addHighscore, getHighscores, validatePoints, formatHighscoresForFrontend };
+module.exports = { addHighscore, getHighscores, formatHighscoresForFrontend };
