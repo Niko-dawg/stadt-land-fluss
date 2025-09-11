@@ -48,9 +48,9 @@ export const Header = ({
   const handleLogin = () => navigate('/login');
   const handleLogout = () => {
     localStorage.removeItem('user');
-    localStorage.removeItem('authToken'); // Token ebenfalls entfernen
+    localStorage.removeItem('token'); // Korrekt: 'token' nicht 'authToken'
     setUser(null);
-    navigate('/login');
+    navigate('/');
   };
   const handleAdmin = () => navigate('/admin');
   const handleHelp = () => navigate('/help');

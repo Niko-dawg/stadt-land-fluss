@@ -24,7 +24,7 @@ function getGameState() {
     if (globalGameState.status === 'playing' && globalGameState.currentRound) {
         updateTimer();
     }
-
+    
     const baseState = {
         status: globalGameState.status,
         players: globalGameState.players.map(p => ({
@@ -32,7 +32,8 @@ function getGameState() {
             name: p.name,
             connected: p.connected,
             hasSubmitted: p.answers && Object.keys(p.answers).length > 0,
-            roundPoints: p.roundPoints || 0
+            roundPoints: p.roundPoints || 0,
+            waitingForNextRound: p.waitingForNextRound || false
         }))
     };
 
@@ -42,10 +43,11 @@ function getGameState() {
     } else if (globalGameState.status === 'results') {
         baseState.lastRoundResults = globalGameState.lastRoundResults;
         baseState.nextRoundIn = globalGameState.nextRoundIn || 0;
+        baseState.nextRoundEndTime = globalGameState.nextRoundEndTime; // Für smooth Timer
     } else if (globalGameState.status === 'voting') {
         baseState.voting = globalGameState.voting;
     }
-
+    
     return baseState;
 }
 
@@ -63,12 +65,15 @@ function joinGame(user) {
     // Prüfen ob User bereits im Spiel
     const existingPlayer = globalGameState.players.find(p => p.id === user.id);
     if (existingPlayer) {
-        throw new Error('You are already in this game');
-    }
-
-    // Prüfen ob Spiel läuft (dann muss gewartet werden)
-    if (globalGameState.status === 'playing') {
-        throw new Error('Game is currently running. Please wait for the next round.');
+        // Spieler ist bereits im Spiel - einfach verbunden markieren und Status zurückgeben
+        existingPlayer.connected = true;
+        return {
+            success: true,
+            playerId: user.id,
+            message: `${user.username} is already in the game`,
+            gameStarted: false,
+            rejoined: true
+        };
     }
 
     const newPlayer = {
@@ -76,10 +81,23 @@ function joinGame(user) {
         name: user.username, // Username aus JWT Token
         connected: true,
         answers: {},
-        roundPoints: 0
+        roundPoints: 0,
+        waitingForNextRound: false // Flag für Spieler die während einer Runde joinen
     };
 
     globalGameState.players.push(newPlayer);
+
+    // Wenn Spiel läuft - Spieler kann joinen aber muss bis zur nächsten Runde warten
+    if (globalGameState.status === 'playing') {
+        newPlayer.waitingForNextRound = true;
+        return {
+            success: true,
+            playerId: user.id,
+            message: `${user.username} joined during round. You'll participate in the next round.`,
+            gameStarted: false,
+            waitingForNextRound: true
+        };
+    }
 
     // Wenn erster Spieler und Status ist lobby → Spiel automatisch starten
     if (globalGameState.players.length === 1 && globalGameState.status === 'lobby') {
@@ -109,6 +127,7 @@ function startNewRound() {
     globalGameState.players.forEach(player => {
         player.answers = {};
         player.roundPoints = 0;
+        player.waitingForNextRound = false; // Reset waiting flag für neue Runde
     });
 
     // Neue Runde erstellen
@@ -116,7 +135,8 @@ function startNewRound() {
         letter: randomLetter,
         categories: CATEGORIES,
         timeLeft: ROUND_TIME,
-        startTime: Date.now()
+        startTime: Date.now(),
+        endTime: Date.now() + (ROUND_TIME * 1000) // Absolute End-Zeit für smooth Frontend-Timer
     };
 
     globalGameState.status = 'playing';
@@ -152,20 +172,43 @@ function updateTimer() {
     globalGameState.currentRound.timeLeft = Math.max(0, ROUND_TIME - elapsed);
 }
 
-// Prüfen ob alle Spieler abgegeben haben
+// Prüfen ob alle aktiven Spieler abgegeben haben (nicht die wartenden)
 function allPlayersSubmitted() {
-    return globalGameState.players.every(player => 
+    // Nur Spieler berücksichtigen, die nicht auf die nächste Runde warten
+    const activePlayers = globalGameState.players.filter(player => !player.waitingForNextRound);
+    
+    // Wenn keine aktiven Spieler vorhanden sind, ist niemand fertig
+    if (activePlayers.length === 0) {
+        return false;
+    }
+    
+    // Prüfen ob alle aktiven Spieler abgegeben haben
+    return activePlayers.every(player => 
         player.answers && Object.keys(player.answers).length === CATEGORIES.length
     );
 }
 
 // Antworten einreichen
-function submitAnswers(user, answers) {
+async function submitAnswers(user, answers) {
     if (globalGameState.status !== 'playing') {
         throw new Error('No active round to submit answers to');
     }
 
     const player = globalGameState.players.find(p => p.id === user.id);
+    
+    if (!player) {
+        throw new Error('Player not found in current game');
+    }
+
+    // Prüfen ob Spieler auf nächste Runde wartet
+    if (player.waitingForNextRound) {
+        throw new Error('You are waiting for the next round and cannot submit answers yet');
+    }
+
+    // Prüfen ob Spieler bereits abgegeben hat
+    if (player.answers && Object.keys(player.answers).length > 0) {
+        throw new Error('You have already submitted your answers for this round');
+    }
     
     // Antworten validieren und speichern
     const validatedAnswers = {};
@@ -176,9 +219,88 @@ function submitAnswers(user, answers) {
 
     player.answers = validatedAnswers;
 
+    // Sofort vorläufige Punkte für diesen Spieler berechnen (ohne Unique-Bonus)
+    const playerResults = await calculatePlayerPreviewPoints(player);
+
     return {
         success: true,
-        message: 'Answers submitted successfully'
+        message: 'Answers submitted successfully',
+        preview: playerResults
+    };
+}
+
+// Vorläufige Punkte für einen Spieler berechnen (ohne Unique-Bonus)
+async function calculatePlayerPreviewPoints(player) {
+    const currentLetter = globalGameState.currentRound.letter.toLowerCase();
+    const results = {};
+    let totalBasePoints = 0;
+
+    for (const categoryName of CATEGORIES) {
+        const answer = player.answers[categoryName] || '';
+        
+        if (!answer.trim()) {
+            results[categoryName] = {
+                answer: '',
+                valid: false,
+                basePoints: 0,
+                reason: 'No answer provided'
+            };
+            continue;
+        }
+
+        // Category-ID aus DataStore holen
+        const categoryData = dataStore.findCategoryByName(categoryName);
+        if (!categoryData) {
+            results[categoryName] = {
+                answer: answer,
+                valid: false,
+                basePoints: 0,
+                reason: 'Category not found'
+            };
+            continue;
+        }
+
+        const normalizedAnswer = answer.toLowerCase().trim();
+
+        // 1. Prüfen ob Antwort mit richtigem Buchstaben beginnt
+        if (!normalizedAnswer.startsWith(currentLetter)) {
+            results[categoryName] = {
+                answer: answer,
+                valid: false,
+                basePoints: 0,
+                reason: `Must start with letter '${globalGameState.currentRound.letter.toUpperCase()}'`
+            };
+            continue;
+        }
+
+        // 2. Prüfen ob Wort in der Datenbank existiert
+        const wordInDB = dataStore.findWordInCategory(answer, categoryData.category_id);
+        if (!wordInDB) {
+            results[categoryName] = {
+                answer: answer,
+                valid: false,
+                basePoints: 0,
+                reason: 'Word not found in database'
+            };
+            continue;
+        }
+
+        // 3. Grundpunkte basierend auf Wortlänge
+        const basePoints = answer.length;
+        totalBasePoints += basePoints;
+
+        results[categoryName] = {
+            answer: answer,
+            valid: true,
+            basePoints: basePoints,
+            reason: 'Valid word'
+        };
+    }
+
+    return {
+        categoryResults: results,
+        totalBasePoints: totalBasePoints,
+        note: 'Base points only. Uniqueness bonus (+5 per unique word) will be calculated when round ends.'
     };
 }
 
@@ -211,6 +333,7 @@ async function endRound() {
     // Nach 10 Sekunden automatisch nächste Runde starten (wenn Spieler da sind)
     let countdown = 10;
     globalGameState.nextRoundIn = countdown;
+    globalGameState.nextRoundEndTime = Date.now() + 10000; // Absolute End-Zeit für Lobby-Timer
     
     const countdownTimer = setInterval(() => {
         countdown--;
@@ -231,11 +354,15 @@ async function endRound() {
     }, 1000);
 }
 
-// Punkte berechnen und in DB speichern
+// Finale Punkte berechnen und in DB speichern (mit Unique-Bonus)
 async function calculateAndSavePoints() {
     const currentLetter = globalGameState.currentRound.letter.toLowerCase();
     const db = require('../../db'); // DB-Verbindung
-    const pendingVotes = []; // { word, category, playerId, playerName }
+
+    // Alle Spieler-Rundenpunkte zurücksetzen für finale Berechnung
+    globalGameState.players.forEach(player => {
+        player.roundPoints = 0;
+    });
 
     CATEGORIES.forEach(categoryName => {
         // Category-ID aus DataStore holen
@@ -263,7 +390,7 @@ async function calculateAndSavePoints() {
         answers.forEach(async a => {
             const player = globalGameState.players.find(p => p.id === a.playerId);
             const normalizedAnswer = a.answer.toLowerCase().trim();
-
+            
             // 1. Prüfen ob Antwort mit richtigem Buchstaben beginnt
             const startsWithLetter = normalizedAnswer.startsWith(currentLetter);
             if (!startsWithLetter) {
@@ -274,63 +401,14 @@ async function calculateAndSavePoints() {
             // 2. Prüfen ob Wort in der Datenbank existiert
             const wordInDB = dataStore.findWordInCategory(a.answer, categoryData.category_id);
             if (!wordInDB) {
-                // Prüfe auf ähnliche Wörter (bis zu 80% Fehlerquote)
-                const similarWord = findSimilarWord(a.answer, categoryData.category_id);
-                if (similarWord) {
-                    // Grundpunkte basierend auf Wortlänge für ähnliche Wörter
-                    let basePoints = a.answer.length;
-                    const isUnique = answerCounts[normalizedAnswer] === 1;
-                    if (isUnique) {
-                        basePoints += 5;
-                    }
-
-                    const similarity = calculateSimilarity(a.answer, similarWord.word);
-                    const partialPoints = Math.floor(basePoints * similarity);
-                    console.log(`⚠️ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Similar to "${similarWord.word}" (${Math.round(similarity * 100)}%), awarding ${partialPoints} points`);
-
-                    player.roundPoints = (player.roundPoints || 0) + partialPoints;
-
-                    // In game_entries speichern
-                    if (partialPoints > 0) {
-                        try {
-                            await db.query(`
-                                INSERT INTO game_entries (user_id, category_id, answer, points, is_multiplayer)
-                                VALUES ($1, $2, $3, $4, true)
-                            `, [a.playerId, categoryData.category_id, a.answer, partialPoints]);
-
-                            // DataStore synchronisieren
-                            dataStore.addGameEntry({
-                                game_entries_id: null,
-                                user_id: a.playerId,
-                                category_id: categoryData.category_id,
-                                answer: a.answer,
-                                points: partialPoints,
-                                is_multiplayer: true
-                            });
-
-                            console.log(`💾 Saved partial entry: ${a.playerName} - ${a.answer} (${partialPoints}pts) to DB + DataStore`);
-                        } catch (error) {
-                            console.error(`❌ Failed to save partial game entry for ${a.playerName}:`, error);
-                        }
-                    }
-                } else {
-                    console.log(`❌ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Not in database, starting vote`);
-                    // Sammle für Abstimmung statt 0 Punkte
-                    pendingVotes.push({
-                        word: a.answer,
-                        category: categoryName,
-                        categoryId: categoryData.category_id,
-                        playerId: a.playerId,
-                        playerName: a.playerName
-                    });
-                }
-                return;
+                console.log(`❌ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Not in database`);
+                return; // 0 Punkte CHEF SAGT MORGEN ABSTIMMUNG NOCH EINBAUEN SONST GIBTS SCHLÄGE DANKESCHÖN
             }
 
-            // 3. Grundpunkte basierend auf Wortlänge
+            // 3. Grundpunkte basierend auf Wortlänge::::80% richtiges Wort soll trotzdem Punkte geben sagt Chef
             let points = a.answer.length;
 
-            // 4. Bonus für einzigartige Antworten
+            // 4. Bonus für einzigartige Antworten 
             const isUnique = answerCounts[normalizedAnswer] === 1;
             if (isUnique) {
                 points += 5;
@@ -348,7 +426,7 @@ async function calculateAndSavePoints() {
                         INSERT INTO game_entries (user_id, category_id, answer, points, is_multiplayer)
                         VALUES ($1, $2, $3, $4, true)
                     `, [a.playerId, categoryData.category_id, a.answer, points]);
-
+                    
                     // DataStore synchronisieren - neue Entry hinzufügen
                     dataStore.addGameEntry({
                         game_entries_id: null, // Wird von DB generiert
@@ -358,7 +436,7 @@ async function calculateAndSavePoints() {
                         points: points,
                         is_multiplayer: true
                     });
-
+                    
                     console.log(`💾 Saved entry: ${a.playerName} - ${a.answer} (${points}pts) to DB + DataStore`);
                 } catch (error) {
                     console.error(`❌ Failed to save game entry for ${a.playerName}:`, error);
@@ -367,10 +445,12 @@ async function calculateAndSavePoints() {
         });
     });
 
-    // Wenn es Wörter für Abstimmung gibt, starte Abstimmung
-    if (pendingVotes.length > 0) {
-        startVoting(pendingVotes[0]); // Erstes Wort zur Abstimmung
-    }
+    // Keine separaten Punkte-Updates mehr nötig - alles in game_entries!
+    
+    // TODO: Hier könnte Voting für unbekannte Wörter implementiert werden
+    // if (pendingVotes.length > 0) {
+    //     startVoting(pendingVotes[0]);
+    // }
 }
 
 // Hilfsfunktion für detaillierte Rundenergebnisse
@@ -410,6 +490,24 @@ function leaveGame(user) {
     };
 }
 
+// Spiel komplett zurücksetzen
+function resetGame() {
+    if (globalGameState.timer) {
+        clearInterval(globalGameState.timer);
+    }
+
+    globalGameState = {
+        status: 'lobby',
+        players: [],
+        currentRound: null,
+        lastRoundResults: null,
+        timer: null,
+        voting: null
+    };
+    
+    console.log('🔄 Game reset to lobby');
+}
+
 // Abstimmung starten
 function startVoting(pendingVote) {
     globalGameState.status = 'voting';
@@ -421,7 +519,8 @@ function startVoting(pendingVote) {
         playerName: pendingVote.playerName,
         votes: { yes: [], no: [] },
         timeLeft: 30, // 30 Sekunden für Abstimmung
-        startTime: Date.now()
+        startTime: Date.now(),
+        endTime: Date.now() + 30000 // Absolute End-Zeit für Voting
     };
 
     console.log(`🗳️ Voting started for "${pendingVote.word}" (${pendingVote.category}) by ${pendingVote.playerName}`);
@@ -484,7 +583,6 @@ async function endVoting() {
     const voting = globalGameState.voting;
     const yesVotes = voting.votes.yes.length;
     const noVotes = voting.votes.no.length;
-    const totalVotes = yesVotes + noVotes;
 
     console.log(`🗳️ Voting ended for "${voting.word}": ${yesVotes} yes, ${noVotes} no`);
 
@@ -499,23 +597,6 @@ async function endVoting() {
 
             player.roundPoints = (player.roundPoints || 0) + points;
 
-            // In game_entries speichern
-            const db = require('../../db');
-            await db.query(`
-                INSERT INTO game_entries (user_id, category_id, answer, points, is_multiplayer)
-                VALUES ($1, $2, $3, $4, true)
-            `, [voting.playerId, voting.categoryId, voting.word, points]);
-
-            // DataStore synchronisieren
-            dataStore.addGameEntry({
-                game_entries_id: null,
-                user_id: voting.playerId,
-                category_id: voting.categoryId,
-                answer: voting.word,
-                points: points,
-                is_multiplayer: true
-            });
-
             console.log(`✅ Word "${voting.word}" accepted and ${points} points awarded to ${voting.playerName}`);
         } catch (error) {
             console.error(`❌ Failed to add word "${voting.word}" to database:`, error);
@@ -527,118 +608,8 @@ async function endVoting() {
     // Abstimmung zurücksetzen
     globalGameState.voting = null;
 
-    // Zurück zu results
+    // Zurück zu results - das übernimmt endRound()
     globalGameState.status = 'results';
-
-    // Rundenergebnisse vorbereiten
-    globalGameState.lastRoundResults = {
-        letter: globalGameState.currentRound.letter,
-        playerResults: globalGameState.players.map(p => ({
-            name: p.name,
-            answers: p.answers,
-            roundPoints: p.roundPoints,
-            details: getPlayerRoundDetails(p, globalGameState.currentRound.letter)
-        }))
-    };
-
-    globalGameState.currentRound = null;
-
-    // Nach 10 Sekunden nächste Runde starten
-    let countdown = 10;
-    globalGameState.nextRoundIn = countdown;
-
-    const countdownTimer = setInterval(() => {
-        countdown--;
-        globalGameState.nextRoundIn = countdown;
-
-        if (countdown <= 0) {
-            clearInterval(countdownTimer);
-
-            if (globalGameState.players.length > 0) {
-                startNewRound();
-            } else {
-                globalGameState.status = 'lobby';
-                globalGameState.lastRoundResults = null;
-            }
-        }
-    }, 1000);
-}
-
-// Spiel komplett zurücksetzen
-function resetGame() {
-    if (globalGameState.timer) {
-        clearInterval(globalGameState.timer);
-    }
-
-    globalGameState = {
-        status: 'lobby',
-        players: [],
-        currentRound: null,
-        lastRoundResults: null,
-        timer: null,
-        voting: null
-    };
-
-    console.log('🔄 Game reset to lobby');
-}
-
-// Hilfsfunktion: Ähnliches Wort finden (Levenshtein-Distanz)
-function findSimilarWord(inputWord, categoryId) {
-    const words = dataStore.getWordsByCategory(categoryId);
-    if (!words) return null;
-
-    let bestMatch = null;
-    let bestSimilarity = 0;
-
-    words.forEach(word => {
-        const similarity = calculateSimilarity(inputWord, word.word);
-        if (similarity > bestSimilarity && similarity >= 0.2) { // Mindestens 20% Ähnlichkeit
-            bestSimilarity = similarity;
-            bestMatch = word;
-        }
-    });
-
-    return bestMatch;
-}
-
-// Hilfsfunktion: Ähnlichkeit berechnen (Levenshtein-Distanz)
-function calculateSimilarity(str1, str2) {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-
-    if (longer.length === 0) return 1.0;
-
-    const distance = levenshteinDistance(longer, shorter);
-    return (longer.length - distance) / longer.length;
-}
-
-// Levenshtein-Distanz berechnen
-function levenshteinDistance(str1, str2) {
-    const matrix = [];
-
-    for (let i = 0; i <= str2.length; i++) {
-        matrix[i] = [i];
-    }
-
-    for (let j = 0; j <= str1.length; j++) {
-        matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= str2.length; i++) {
-        for (let j = 1; j <= str1.length; j++) {
-            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1, // Substitution
-                    matrix[i][j - 1] + 1,     // Insertion
-                    matrix[i - 1][j] + 1      // Deletion
-                );
-            }
-        }
-    }
-
-    return matrix[str2.length][str1.length];
 }
 
 module.exports = {

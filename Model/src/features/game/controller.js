@@ -68,17 +68,17 @@ async function leaveGame(req, res) {
 // POST /api/game/vote - Stimme abgeben
 async function vote(req, res) {
     try {
-        const { voteType } = req.body; // 'yes' or 'no'
+        const { vote } = req.body; // 'yes' or 'no'
 
         if (!req.user) {
             return res.status(401).json({ error: 'Authentication required' });
         }
 
-        if (!voteType || !['yes', 'no'].includes(voteType)) {
-            return res.status(400).json({ error: 'Valid voteType (yes/no) is required' });
+        if (!vote || !['yes', 'no'].includes(vote)) {
+            return res.status(400).json({ error: 'Valid vote (yes/no) is required' });
         }
 
-        const result = gameService.vote(req.user, voteType);
+        const result = gameService.vote(req.user, vote);
         res.json(result);
     } catch (error) {
         console.error('Error voting:', error);

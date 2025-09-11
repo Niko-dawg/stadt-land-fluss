@@ -2,6 +2,7 @@
 // Autor: Torga Aslan
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 
 // Feature-Router
@@ -22,5 +23,12 @@ app.use('/api/admin', adminRouter);
 app.use('/api/points', pointsRouter);
 app.use('/api/game', gameRouter);
 
+// --- React-Build statisch ausliefern ---
+const buildDir = path.resolve(__dirname, '../../stadt-land-fluss/build');
+app.use(express.static(buildDir));
 
+// --- Catch-All NUR für Nicht-/api-Routen (Express 5 kompatibel) ---
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(buildDir, 'index.html'));
+});
 module.exports = app;

@@ -1,43 +1,34 @@
-let highscores = [   { userId: "emilia", points: 95, createdAt: new Date("2025-09-02T14:30:00Z") } ];
 
-function calculatePoints(answer, isValidWord, isUnique) {
-  let basePoints = 0;
-  if (!isValidWord) return 0; //ungültig keine Punkte
-  //unkte abhängig von Wortlänge
-  basePoints = answer.length;
-  //Bonus wenn einzigartig
-  if (isUnique) {
-    basePoints += 5;
-  }
-  return basePoints;
-}
+// TODO: Diese Datei gehört nicht ins Frontend!
+// 
+// Highscore-Logic sollte ins Backend:
+// /Model/src/features/highscore/
+// 
+// Frontend sollte nur API-Calls machen, keine Business-Logic.
+// Bitte verschieben und Backend-Endpunkte erstellen.
+// - Torga
+//
+// Original code temporarily disabled due to syntax errors:
 
-//userId ist der Spielername
-function addHighscore(answer, isValidWord, isUnique, userId) {
-    const points = calculatePoints(answer, isValidWord, isUnique);
-    const entry = { userId, points, createdAt: new Date() };
-    highscores.push(entry);
-    return entry;
-}
+// let highscores = [];
 
-function getHighscores() {
-  //  return highscores;
-    //Sortieren muss noch eingebaut werden!!!!
-    return highscores.sort((a, b) => b.points - a.points);
+// export function addHighscore() {
+//     const entry = { userId, points, createdAt: new Date() };
+//     highscores.push(entry);
+//     return entry;
+// }
 
-}
+// function getHighscores() {
+//   //  return highscores;
+//     //Sortieren muss noch eingebaut werden!!!!
+//     return highscores.sort((a, b) => b.points - a.points);
+// }
 
+// function validatePoints(points) {
+//     return Number.isInteger(points) && points >= 0;
+//     // Nur positive und ganze Zahlen!
+// }
 
-//Werte Umschreiben für das Frontend:
-// position: 1, player: "Anna", score: 150, crown: true }
+// module.exports = { addHighscore, getHighscores, validatePoints };
 
-function formatHighscoresForFrontend() {
-    return getHighscores().map((entry, index) => ({
-        position: index + 1,
-        player: entry.userId,
-        score: entry.points,
-        crown: index === 0 // Krone für den ersten Platz
-    }));
-}
-
-module.exports = { addHighscore, getHighscores, validatePoints, formatHighscoresForFrontend };
+/* position: 1, player: "Anna", score: 150, crown: true */

@@ -114,3 +114,99 @@ header {
   background-color: #f3e7d9;
   border: 2px #a67c52 solid;
 }
+
+/* Login Required Popup - Im selben Stil wie login.css */
+.login-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-popup {
+  width: 30%;
+  min-width: 400px;
+  border: 2px solid #222;
+  background-color: rgba(220,220,220,0.97);
+  padding: 28px 24px 24px 24px;
+  font-family: Arial, sans-serif;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  position: relative;
+}
+
+.popup-header {
+  border-bottom: 2px solid #222;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+}
+
+.close-button {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: #222;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #b00;
+}
+
+.popup-content {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.popup-content p {
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.popup-login-btn, .popup-cancel-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: 2px solid #222;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.popup-login-btn {
+  background: #f5e6c8;
+  color: #222;
+}
+
+.popup-login-btn:hover {
+  background: #ffe082;
+}
+
+.popup-cancel-btn {
+  background: #e0e0e0;
+  color: #222;
+}
+
+.popup-cancel-btn:hover {
+  background: #d0d0d0;
+}

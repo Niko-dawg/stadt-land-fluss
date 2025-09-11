@@ -274,3 +274,265 @@ button {
   top: 0;
   left: 0;
 }
+
+/* Two-Phase Points & Voting Styles */
+.submission-results {
+  background-color: #f0f8ff;
+  border: 2px solid #4CAF50;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.total-preview {
+  background-color: #e8f5e8;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 6px;
+}
+
+.result-item.valid {
+  background-color: #d4edda;
+  border-left: 4px solid #28a745;
+}
+
+.result-item.invalid {
+  background-color: #f8d7da;
+  border-left: 4px solid #dc3545;
+}
+
+.points {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.reason {
+  color: #6c757d;
+  font-style: italic;
+  margin-left: 10px;
+}
+
+.preview-note, .preview-warning {
+  font-size: 0.9rem;
+  margin: 10px 0;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.preview-note {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.preview-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Player Status with Preview Points */
+.player-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.player-status.submitted {
+  background-color: #d4edda;
+  border: 2px solid #28a745;
+}
+
+.player-status.pending {
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+}
+
+.player-status.waiting {
+  background-color: #e2e3e5;
+  border: 2px solid #6c757d;
+  opacity: 0.7;
+}
+
+.player-waiting-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.player-preview-points {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.player-final-points {
+  font-size: 0.9rem;
+  color: #28a745;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+/* Waiting for next round view */
+.waiting-for-round {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.waiting-for-round h2 {
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+.waiting-for-round p {
+  font-size: 1.1rem;
+  color: #495057;
+  margin-bottom: 30px;
+}
+
+.current-round-info {
+  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+  border: 2px solid #6c757d;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.current-round-info .timer {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #6c757d;
+}
+
+.current-round-info .letter {
+  font-size: 1.2rem;
+  color: #495057;
+}
+
+.waiting-for-round .players-finished {
+  margin-top: 30px;
+}
+
+.waiting-for-round .players-finished h3 {
+  color: #495057;
+  margin-bottom: 15px;
+}
+
+/* Voting Interface */
+.voting-interface {
+  background: linear-gradient(145deg, #fffbf0, #ffeaa7);
+  border: 3px solid #fdcb6e;
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(253, 203, 110, 0.3);
+}
+
+.voting-word {
+  font-size: 1.8rem;
+  margin: 15px 0;
+  color: #2d3436;
+}
+
+.voting-category, .voting-player {
+  display: block;
+  font-size: 1rem;
+  color: #636e72;
+  margin-top: 8px;
+}
+
+.voting-timer {
+  font-size: 1.4rem;
+  color: #e17055;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.voting-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.vote-yes, .vote-no {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.vote-yes {
+  background-color: #00b894;
+  color: white;
+}
+
+.vote-yes:hover:not(:disabled) {
+  background-color: #00a085;
+  transform: translateY(-2px);
+}
+
+.vote-no {
+  background-color: #e17055;
+  color: white;
+}
+
+.vote-no:hover:not(:disabled) {
+  background-color: #d63031;
+  transform: translateY(-2px);
+}
+
+.vote-yes:disabled, .vote-no:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.voting-status {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin: 15px 0;
+  font-size: 1.1rem;
+}
+
+.yes-votes {
+  color: #00b894;
+  font-weight: bold;
+}
+
+.no-votes {
+  color: #e17055;
+  font-weight: bold;
+}
+
+.voted-message {
+  color: #00b894;
+  font-weight: bold;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #d4edda;
+  border-radius: 8px;
+}

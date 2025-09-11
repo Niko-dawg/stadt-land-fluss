@@ -9,6 +9,28 @@
   margin: 0 auto;
 }
 
+/* Loading und Error Messages */
+.adminLoadingMessage, .adminErrorMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  font-size: 18px;
+  text-align: center;
+  padding: 20px;
+}
+
+.adminLoadingMessage {
+  color: #666;
+}
+
+.adminErrorMessage {
+  color: #d32f2f;
+  background-color: #ffebee;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+}
+
 /* Emilia */
 .adminHeader {
   font-size: 20px;

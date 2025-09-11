@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./home.css";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header.js";
@@ -20,13 +20,32 @@ const GameMode = ({ title, players, onClick }) => (
 /* Emilia */
 export function Test() {
   const navigate = useNavigate();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const handleSinglePlayer = () => {
     navigate('/spiel/single');
   };
   
   const handleMultiPlayer = () => {
+    // Erst Auth-Status prüfen für Multiplayer
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Popup anzeigen anstatt Alert
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    // Wenn Token vorhanden, zum Multiplayer-Spiel
     navigate('/spiel/multi');
+  };
+
+  const handleClosePopup = () => {
+    setShowLoginPrompt(false);
+  };
+
+  const handleGoToLogin = () => {
+    setShowLoginPrompt(false);
+    navigate('/login');
   };
 
   return (
@@ -34,6 +53,28 @@ export function Test() {
       <Header />
       <GameMode title="Single Player" onClick={handleSinglePlayer} />
       <GameMode title="Multiplayer" players={4} onClick={handleMultiPlayer} />
+      
+      {/* Login Required Popup */}
+      {showLoginPrompt && (
+        <div className="login-popup-overlay">
+          <div className="login-popup">
+            <button className="close-button" onClick={handleClosePopup}>×</button>
+            <div className="popup-header">Login erforderlich</div>
+            <div className="popup-content">
+              <p>Nur angemeldete Benutzer können Multiplayer spielen.</p>
+              <p>Bitte melden Sie sich an oder erstellen Sie ein kostenloses Konto.</p>
+            </div>
+            <div className="popup-buttons">
+              <button className="popup-login-btn" onClick={handleGoToLogin}>
+                Zum Login
+              </button>
+              <button className="popup-cancel-btn" onClick={handleClosePopup}>
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
