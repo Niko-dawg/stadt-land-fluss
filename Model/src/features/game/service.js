@@ -358,6 +358,7 @@ async function endRound() {
 async function calculateAndSavePoints() {
     const currentLetter = globalGameState.currentRound.letter.toLowerCase();
     const db = require('../../db'); // DB-Verbindung
+    const pendingVotes = []; // { word, category, playerId, playerName }
 
     // Alle Spieler-Rundenpunkte zurücksetzen für finale Berechnung
     globalGameState.players.forEach(player => {
@@ -401,8 +402,57 @@ async function calculateAndSavePoints() {
             // 2. Prüfen ob Wort in der Datenbank existiert
             const wordInDB = dataStore.findWordInCategory(a.answer, categoryData.category_id);
             if (!wordInDB) {
-                console.log(`❌ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Not in database`);
-                return; // 0 Punkte CHEF SAGT MORGEN ABSTIMMUNG NOCH EINBAUEN SONST GIBTS SCHLÄGE DANKESCHÖN
+                // Prüfe auf ähnliche Wörter (bis zu 80% Fehlerquote), aber nur mit richtigem Anfangsbuchstaben
+                const similarWord = findSimilarWord(a.answer, categoryData.category_id, currentLetter);
+                if (similarWord && similarWord.similarity) {
+                    // Grundpunkte basierend auf Wortlänge für ähnliche Wörter
+                    let basePoints = a.answer.length;
+                    const isUnique = answerCounts[normalizedAnswer] === 1;
+                    if (isUnique) {
+                        basePoints += 5;
+                    }
+
+                    // Verwende die bereits berechnete Ähnlichkeit aus findSimilarWord
+                    const partialPoints = Math.floor(basePoints * similarWord.similarity);
+                    console.log(`⚠️ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Similar to "${similarWord.word}" (${Math.round(similarWord.similarity * 100)}%), awarding ${partialPoints} points`);
+
+                    player.roundPoints = (player.roundPoints || 0) + partialPoints;
+
+                    // In game_entries speichern
+                    if (partialPoints > 0) {
+                        try {
+                            await db.query(`
+                                INSERT INTO game_entries (user_id, category_id, answer, points, is_multiplayer)
+                                VALUES ($1, $2, $3, $4, true)
+                            `, [a.playerId, categoryData.category_id, a.answer, partialPoints]);
+
+                            // DataStore synchronisieren
+                            dataStore.addGameEntry({
+                                game_entries_id: null,
+                                user_id: a.playerId,
+                                category_id: categoryData.category_id,
+                                answer: a.answer,
+                                points: partialPoints,
+                                is_multiplayer: true
+                            });
+
+                            console.log(`💾 Saved partial entry: ${a.playerName} - ${a.answer} (${partialPoints}pts) to DB + DataStore`);
+                        } catch (error) {
+                            console.error(`❌ Failed to save partial game entry for ${a.playerName}:`, error);
+                        }
+                    }
+                } else {
+                    console.log(`❌ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Not in database, starting vote`);
+                    // Sammle für Abstimmung statt 0 Punkte
+                    pendingVotes.push({
+                        word: a.answer,
+                        category: categoryName,
+                        categoryId: categoryData.category_id,
+                        playerId: a.playerId,
+                        playerName: a.playerName
+                    });
+                }
+                return;
             }
 
             // 3. Grundpunkte basierend auf Wortlänge::::80% richtiges Wort soll trotzdem Punkte geben sagt Chef
@@ -445,12 +495,10 @@ async function calculateAndSavePoints() {
         });
     });
 
-    // Keine separaten Punkte-Updates mehr nötig - alles in game_entries!
-    
-    // TODO: Hier könnte Voting für unbekannte Wörter implementiert werden
-    // if (pendingVotes.length > 0) {
-    //     startVoting(pendingVotes[0]);
-    // }
+    // Wenn es Wörter für Abstimmung gibt, starte Abstimmung
+    if (pendingVotes.length > 0) {
+        startVoting(pendingVotes[0]); // Erstes Wort zur Abstimmung
+    }
 }
 
 // Hilfsfunktion für detaillierte Rundenergebnisse
@@ -508,7 +556,101 @@ function resetGame() {
     console.log('🔄 Game reset to lobby');
 }
 
-// Abstimmung starten
+// Hilfsfunktion: Ähnliches Wort finden (Levenshtein-Distanz)
+function findSimilarWord(inputWord, categoryId, requiredLetter) {
+    const words = dataStore.findWordsByCategory(categoryId);
+    console.log(`🔍 DEBUG: Looking for similar words for "${inputWord}" in category ${categoryId}`);
+    console.log(`🔍 DEBUG: Found ${words ? words.length : 0} words in category`);
+    
+    if (!words) return null;
+
+    let bestMatch = null;
+    let bestSimilarity = 0;
+
+    words.forEach((word, index) => {
+        // ANTI-CHEAT: Nur Wörter prüfen, die mit dem richtigen Buchstaben anfangen
+        if (requiredLetter && !word.word.toLowerCase().startsWith(requiredLetter.toLowerCase())) {
+            return; // Skip dieses Wort
+        }
+        
+        // Case-insensitive Vergleich
+        const similarity = calculateSimilarity(inputWord.toLowerCase(), word.word.toLowerCase());
+        
+        // Debug für erste 5 Vergleiche und alle relevanten Matches
+        if (index < 5 || similarity >= 0.6) {
+            console.log(`🔍 DEBUG: "${inputWord}" vs "${word.word}": ${Math.round(similarity * 100)}% similarity`);
+        }
+        
+        if (similarity > bestSimilarity && similarity >= 0.8) { // Mindestens 80% Ähnlichkeit
+            bestSimilarity = similarity;
+            bestMatch = word;
+            console.log(`🎯 DEBUG: New best match: "${word.word}" with ${Math.round(similarity * 100)}%`);
+        }
+    });
+
+    console.log(`🔍 DEBUG: Final result for "${inputWord}": ${bestMatch ? bestMatch.word : 'no match'}`);
+    
+    // Gebe sowohl das Wort als auch die Ähnlichkeit zurück
+    if (bestMatch) {
+        return {
+            word: bestMatch.word,
+            similarity: bestSimilarity
+        };
+    }
+    return null;
+}
+
+// Hilfsfunktion: Ähnlichkeit berechnen (Levenshtein-Distanz)
+function calculateSimilarity(str1, str2) {
+    // Bereits in lowercase konvertiert durch den Aufruf
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+
+    if (longer.length === 0) return 1.0;
+
+    const distance = levenshteinDistance(longer, shorter);
+    const similarity = (longer.length - distance) / longer.length;
+    
+    // Debug für kritische Fälle
+    if (similarity >= 0.7) {
+        console.log(`🧮 CALC DEBUG: "${str1}" vs "${str2}" -> distance: ${distance}, longer: ${longer.length}, similarity: ${Math.round(similarity * 100)}%`);
+    }
+    
+    return similarity;
+}
+
+// Levenshtein-Distanz berechnen
+function levenshteinDistance(str1, str2) {
+    const matrix = [];
+
+    for (let i = 0; i <= str2.length; i++) {
+        matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= str1.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= str2.length; i++) {
+        for (let j = 1; j <= str1.length; j++) {
+            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // Substitution
+                    matrix[i][j - 1] + 1,     // Insertion
+                    matrix[i - 1][j] + 1      // Deletion
+                );
+            }
+        }
+    }
+
+    return matrix[str2.length][str1.length];
+}
+
+// ====== VOTING SYSTEM ======
+
+// Abstimmung für ein unbekanntes Wort starten
 function startVoting(pendingVote) {
     globalGameState.status = 'voting';
     globalGameState.voting = {
@@ -533,12 +675,6 @@ function startVoting(pendingVote) {
             endVoting();
         }
     }, 1000);
-}
-
-// Prüfen ob alle Spieler abgestimmt haben
-function allPlayersVoted() {
-    const votedPlayerIds = [...globalGameState.voting.votes.yes, ...globalGameState.voting.votes.no];
-    return globalGameState.players.every(player => votedPlayerIds.includes(player.id));
 }
 
 // Stimme abgeben
@@ -573,6 +709,16 @@ function vote(user, voteType) {
     return { success: true, message: `Vote recorded: ${voteType}` };
 }
 
+// Prüfen ob alle Spieler abgestimmt haben
+function allPlayersVoted() {
+    if (!globalGameState.voting) return false;
+    
+    const votedPlayerIds = [...globalGameState.voting.votes.yes, ...globalGameState.voting.votes.no];
+    const activePlayers = globalGameState.players.filter(p => !p.waitingForNextRound);
+    
+    return activePlayers.every(player => votedPlayerIds.includes(player.id));
+}
+
 // Abstimmung beenden
 async function endVoting() {
     if (globalGameState.timer) {
@@ -593,11 +739,12 @@ async function endVoting() {
             await dataStore.addWord({ word: voting.word, category_id: voting.categoryId });
 
             const player = globalGameState.players.find(p => p.id === voting.playerId);
-            const points = voting.word.length; // Grundpunkte basierend auf Wortlänge
-
-            player.roundPoints = (player.roundPoints || 0) + points;
-
-            console.log(`✅ Word "${voting.word}" accepted and ${points} points awarded to ${voting.playerName}`);
+            if (player) {
+                const points = voting.word.length; // Grundpunkte basierend auf Wortlänge
+                player.roundPoints = (player.roundPoints || 0) + points;
+                
+                console.log(`✅ Word "${voting.word}" accepted and ${points} points awarded to ${voting.playerName}`);
+            }
         } catch (error) {
             console.error(`❌ Failed to add word "${voting.word}" to database:`, error);
         }
@@ -608,15 +755,15 @@ async function endVoting() {
     // Abstimmung zurücksetzen
     globalGameState.voting = null;
 
-    // Zurück zu results - das übernimmt endRound()
+    // Zurück zu results 
     globalGameState.status = 'results';
 }
 
 module.exports = {
-    getGameState,
     joinGame,
+    getGameState,
     submitAnswers,
-    leaveGame,
     resetGame,
-    vote
+    vote,
+    leaveGame
 };
