@@ -825,7 +825,25 @@ async function endVoting() {
                 const points = voting.word.length; // Grundpunkte basierend auf Wortlänge
                 player.roundPoints = (player.roundPoints || 0) + points;
                 
+                // 🔥 WICHTIG: Auch game_entries für Highscore erstellen!
+                const db = require('../../db');
+                await db.query(`
+                    INSERT INTO game_entries (user_id, category_id, answer, points, is_multiplayer)
+                    VALUES ($1, $2, $3, $4, true)
+                `, [voting.playerId, voting.categoryId, voting.word, points]);
+                
+                // DataStore synchronisieren
+                dataStore.addGameEntry({
+                    game_entries_id: null,
+                    user_id: voting.playerId,
+                    category_id: voting.categoryId,
+                    answer: voting.word,
+                    points: points,
+                    is_multiplayer: true
+                });
+                
                 console.log(`✅ Word "${voting.word}" accepted by majority vote and ${points} points awarded to ${voting.playerName}`);
+                console.log(`💾 Voting word saved to game_entries for highscore calculation`);
             }
         } catch (error) {
             console.error(`❌ Failed to add word "${voting.word}" to database:`, error);
