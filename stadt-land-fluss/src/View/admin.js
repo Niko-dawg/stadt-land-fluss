@@ -19,6 +19,9 @@ export default function AdminUserVerwaltung() {
     const [words, setWords] = React.useState([]);
     const [successMessage, setSuccessMessage] = React.useState("");
     const [deleteModal, setDeleteModal] = React.useState({ show: false, user: null });
+    const [selectedCategoryWords, setSelectedCategoryWords] = React.useState([]);
+    const [editingUser, setEditingUser] = React.useState(null);
+    const [editingWord, setEditingWord] = React.useState(null);
 
     // Admin-Berechtigung beim Laden prüfen
     React.useEffect(() => {
@@ -75,6 +78,31 @@ export default function AdminUserVerwaltung() {
             }
         });
     };
+
+    // Wörter für Kategorie laden
+    const loadWords = async (categoryId) => {
+        try {
+            const response = await apiCall(`http://localhost:3001/api/admin/words/${categoryId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setSelectedCategoryWords(data.words || []);
+            } else {
+                setSelectedCategoryWords([]);
+            }
+        } catch (error) {
+            console.error('Fehler beim Laden der Wörter:', error);
+            setSelectedCategoryWords([]);
+        }
+    };
+
+    // Bei Kategorie-Wechsel automatisch Wörter laden
+    React.useEffect(() => {
+        if (adminCategory) {
+            const categoryMap = { "Stadt": 1, "Land": 2, "Fluss": 3, "Tier": 4 };
+            const categoryId = categoryMap[adminCategory];
+            loadWords(categoryId);
+        }
+    }, [adminCategory]);
 
     // Loading anzeigen
     if (isLoading) {
@@ -173,6 +201,10 @@ export default function AdminUserVerwaltung() {
                 setSuccessMessage('Wort erfolgreich angelegt!');
                 setAdminWort('');
                 setTimeout(() => setSuccessMessage(''), 3000);
+                // Wörter neu laden
+                const categoryMap = { "Stadt": 1, "Land": 2, "Fluss": 3, "Tier": 4 };
+                const categoryId = categoryMap[adminCategory];
+                loadWords(categoryId);
             } else {
                 const errorData = await response.json();
                 setError(errorData.message || 'Fehler beim Anlegen des Wortes');
@@ -180,6 +212,30 @@ export default function AdminUserVerwaltung() {
             }
         } catch (error) {
             setError('Netzwerkfehler beim Anlegen des Wortes');
+            setTimeout(() => setError(''), 3000);
+        }
+    };
+
+    // Wort löschen
+    const deleteWord = async (wordId) => {
+        try {
+            const response = await apiCall(`http://localhost:3001/api/admin/words/${wordId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                setSuccessMessage('Wort erfolgreich gelöscht!');
+                setTimeout(() => setSuccessMessage(''), 3000);
+                // Wörter neu laden
+                const categoryMap = { "Stadt": 1, "Land": 2, "Fluss": 3, "Tier": 4 };
+                const categoryId = categoryMap[adminCategory];
+                loadWords(categoryId);
+            } else {
+                setError('Fehler beim Löschen des Wortes');
+                setTimeout(() => setError(''), 3000);
+            }
+        } catch (error) {
+            setError('Netzwerkfehler beim Löschen des Wortes');
             setTimeout(() => setError(''), 3000);
         }
     };
@@ -327,9 +383,57 @@ export default function AdminUserVerwaltung() {
                         <button
                             className="adminButtonWide"
                             aria-label=" Wort löschen"
+                            onClick={() => {
+                                if (selectedCategoryWords.length === 0) {
+                                    setError('Keine Wörter in dieser Kategorie gefunden');
+                                    setTimeout(() => setError(''), 3000);
+                                    return;
+                                }
+                                
+                                const wordToDelete = selectedCategoryWords.find(w => w.word.toLowerCase() === adminWort.toLowerCase());
+                                if (!wordToDelete) {
+                                    setError('Wort nicht in der aktuellen Kategorie gefunden');
+                                    setTimeout(() => setError(''), 3000);
+                                    return;
+                                }
+                                
+                                if (window.confirm(`Wort "${wordToDelete.word}" wirklich löschen?`)) {
+                                    deleteWord(wordToDelete.word_id);
+                                    setAdminWort('');
+                                }
+                            }}
                         >
                              Wort löschen
                         </button>
+                    </div>
+
+                    {/* Wörter-Liste für gewählte Kategorie */}
+                    <div className="adminWordsSection">
+                        <h3>Wörter in Kategorie "{adminCategory}"</h3>
+                        <div className="adminWordsList">
+                            {selectedCategoryWords.length > 0 ? (
+                                <div style={{maxHeight: '200px', overflowY: 'auto', border: '1px solid #ddd', padding: '8px'}}>
+                                    {selectedCategoryWords.map((word) => (
+                                        <div key={word.word_id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 8px', borderBottom: '1px solid #eee'}}>
+                                            <span>{word.word}</span>
+                                            <button 
+                                                onClick={() => {
+                                                    if (window.confirm(`Wort "${word.word}" wirklich löschen?`)) {
+                                                        deleteWord(word.word_id);
+                                                    }
+                                                }}
+                                                style={{background: 'transparent', color: '#dc3545', border: '1px solid #dc3545', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer'}}
+                                                title="Wort löschen"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{color: '#666', fontStyle: 'italic'}}>Keine Wörter in dieser Kategorie gefunden</p>
+                            )}
+                        </div>
                     </div>
                 </section>
             </div>

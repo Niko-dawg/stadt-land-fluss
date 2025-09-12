@@ -227,6 +227,16 @@ export function Spiel() {
       const response = await fetch('/api/game/status');
       if (response.ok) {
         const data = await response.json();
+        
+        // DEBUG: Voting-Status loggen
+        if (data.status === 'voting' || data.voting) {
+          console.log('🗳️ FRONTEND: Voting detected:', { 
+            status: data.status, 
+            voting: data.voting, 
+            gameMode: gameMode 
+          });
+        }
+        
         setGameState(data);
       }
     } catch (error) {
@@ -402,16 +412,38 @@ export function Spiel() {
     return (
       <div className="container">
         <Header showLogin={false} showAdmin={false} showHome={true} />
-        <div className="results">
-          <h2>Round Results</h2>
-          <p>Letter: {gameState.lastRoundResults?.letter}</p>
+        
+        {/* Results Header */}
+        <div className="results-header">
+          <h2>🏆 Rundenergebnisse</h2>
+          <div className="round-letter">
+            <span>Buchstabe: </span>
+            <div className="letter-badge">{gameState.lastRoundResults?.letter}</div>
+          </div>
+        </div>
+
+        {/* Player Results */}
+        <div className="results-list">
           {gameState.lastRoundResults?.playerResults?.map((player, index) => (
-            <div key={index} className="player-result">
-              <strong>{player.name}:</strong> {player.roundPoints} points
+            <div key={index} className={`player-result-card ${index === 0 ? 'winner' : ''}`}>
+              <div className="player-rank">#{index + 1}</div>
+              <div className="player-info">
+                <div className="player-name">{player.name}</div>
+                <div className="player-points">{player.roundPoints} Punkte</div>
+              </div>
+              {index === 0 && <div className="winner-crown">👑</div>}
             </div>
           ))}
-          <p>Next round in: {smoothLobbyTimer} seconds</p>
         </div>
+
+        {/* Next Round Timer */}
+        <div className="next-round">
+          <div className="countdown-timer">
+            <div className="countdown-number">{smoothLobbyTimer}</div>
+            <div className="countdown-text">Nächste Runde</div>
+          </div>
+        </div>
+        
       </div>
     );
   }
@@ -488,6 +520,8 @@ export function Spiel() {
         </button>
 
         {/* Submission Results anzeigen - Two-Phase Points */}
+        <br />
+        <br />
         {submissionResult && submissionResult.previewPoints && (
           <div className="submission-results">
             <h3>🔍 Deine Vorschau-Punkte (Phase 1):</h3>
@@ -544,6 +578,13 @@ export function Spiel() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* DEBUG: Status-Anzeige */}
+        {gameMode === 'multi' && (
+          <div style={{position: 'fixed', top: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '8px', fontSize: '12px', borderRadius: '4px'}}>
+            Status: {gameState?.status} | Voting: {gameState?.voting ? 'YES' : 'NO'}
           </div>
         )}
 

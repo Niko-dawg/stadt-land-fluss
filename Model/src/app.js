@@ -10,6 +10,7 @@ const authRouter = require('./features/auth/router');
 const adminRouter = require('./features/admin/router');
 const pointsRouter = require('./features/points/router');
 const gameRouter = require('./features/game/router');
+const highscoreRouter = require('./features/highscore/router');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/points', pointsRouter);
 app.use('/api/game', gameRouter);
+app.use('/api/highscore', highscoreRouter);
 
 // --- React-Build statisch ausliefern ---
 const buildDir = path.resolve(__dirname, '../../stadt-land-fluss/build');

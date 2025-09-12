@@ -536,3 +536,168 @@ button {
   background-color: #d4edda;
   border-radius: 8px;
 }
+
+/* 🎯 Beautiful Results Page - Simple & Clean */
+.results-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: #f3e7d9;
+  border-radius: 20px;
+  border: 3px solid #d3bfa6;
+}
+
+.results-header h2 {
+  font-size: 2.5rem;
+  color: #8b4513;
+  margin: 0 0 20px 0;
+  font-weight: bold;
+}
+
+.round-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 1.5rem;
+  color: #5d4037;
+}
+
+.letter-badge {
+  background: #8b4513;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.player-result-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 15px;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.player-result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.player-result-card.winner {
+  background: linear-gradient(135deg, #fff9ef 0%, #f3e7d9 100%);
+  border: 3px solid #d3bfa6;
+  box-shadow: 0 4px 16px rgba(211, 191, 166, 0.4);
+}
+
+.player-rank {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #8b4513;
+  background: #f3e7d9;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #d3bfa6;
+}
+
+.player-info {
+  flex: 1;
+}
+
+.player-name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #5d4037;
+  margin-bottom: 5px;
+}
+
+.player-points {
+  font-size: 1.3rem;
+  color: #8b4513;
+  font-weight: 500;
+}
+
+.winner-crown {
+  font-size: 2rem;
+  animation: bounce 1s infinite;
+}
+
+.next-round {
+  text-align: center;
+  padding: 30px;
+  background: #f3e7d9;
+  border-radius: 20px;
+  border: 3px solid #d3bfa6;
+}
+
+.countdown-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.countdown-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #8b4513;
+  background: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #d3bfa6;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2);
+}
+
+.countdown-text {
+  font-size: 1.3rem;
+  color: #5d4037;
+  font-weight: 500;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .results-header h2 {
+    font-size: 2rem;
+  }
+  
+  .player-result-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .round-letter {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

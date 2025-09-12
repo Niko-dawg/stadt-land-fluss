@@ -1,16 +1,26 @@
 // Game Service - Business Logic
 // Autor: Torga & Emilia
+// 
+// ===== WICHTIGE ERKENNTNISSE =====
+// - globalGameState: PRIVATER Server-Zustand (komplette Daten)
+// - baseState: ÖFFENTLICHE Frontend-Daten (gefiltert je nach Status)
+// - Lobby existiert nur wenn NIEMAND im Spiel ist
+// - Erster Spieler → Spiel startet SOFORT
+// - Timer-System: setInterval (starten) + clearInterval (stoppen) für 1s-Takt
 
 const dataStore = require('../../store/DataStore'); // Schon eine Instanz (Singleton)
 
-// Globaler Game State (Ein Raum für alle)
+// ===== GLOBALER GAME STATE (Vollständiger Server-Zustand) =====
 let globalGameState = {
-    status: 'lobby', // 'lobby', 'playing', 'results', 'voting'
-    players: [], // [{ id, name, connected, answers, roundPoints }]
-    currentRound: null, // { number, letter, categories, timeLeft, startTime }
-    lastRoundResults: null, // Ergebnisse der letzten Runde für results-Screen
-    timer: null, // Timer-Referenz
-    voting: null // { word, category, votes: { yes: [], no: [] }, timeout, pendingAnswers: [] }
+    status: 'lobby',              // 'lobby' (leer), 'playing' (Runde läuft), 'results' (Ergebnisse), 'voting' (Abstimmung)
+    players: [],                  // [{ id, name, connected, answers, roundPoints, waitingForNextRound }]
+    currentRound: null,           // { letter, categories, timeLeft, startTime, endTime } - nur während 'playing'
+    lastRoundResults: null,       // Gespeicherte Ergebnisse für Results-Screen (nach endRound())
+    timer: null,                  // setInterval Timer-ID für Rundentimer/Voting
+    voting: null,                 // { word, category, votes: {yes:[], no:[]}, timeLeft } - nur während 'voting'
+    votingQueue: [],              // Queue aller Wörter die abgestimmt werden müssen
+    nextRoundIn: 0,              // Countdown für nächste Runde (10,9,8...) - nur während 'results'
+    nextRoundEndTime: null       // Absolute End-Zeit für Next-Round-Timer - nur während 'results'
 };
 
 // Kategorien für das Spiel
@@ -18,37 +28,46 @@ const CATEGORIES = ['Stadt', 'Land', 'Fluss', 'Tier'];
 const ROUND_TIME = 60; // Sekunden
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-// Game State abrufen
+// ===== FRONTEND-DATENFILTERUNG =====
+// Game State abrufen - WICHTIG: Nur gefilterte Daten ans Frontend!
+// globalGameState = PRIVATER Server-Zustand (alles)
+// baseState = ÖFFENTLICHER Frontend-Zustand (nur was nötig ist)
 function getGameState() {
-    // Timer aktualisieren falls Runde läuft
+    // Timer aktualisieren falls Runde läuft (Live-Update für timeLeft)
     if (globalGameState.status === 'playing' && globalGameState.currentRound) {
-        updateTimer();
+        updateTimer(); // Berechnet aktuelle timeLeft basierend auf verstrichener Zeit
     }
     
+    // BASIS-ZUSTAND: Immer verfügbar fürs Frontend
     const baseState = {
         status: globalGameState.status,
         players: globalGameState.players.map(p => ({
             id: p.id,
             name: p.name,
             connected: p.connected,
-            hasSubmitted: p.answers && Object.keys(p.answers).length > 0,
+            hasSubmitted: p.answers && Object.keys(p.answers).length > 0, // Boolean statt komplette answers
             roundPoints: p.roundPoints || 0,
             waitingForNextRound: p.waitingForNextRound || false
         }))
     };
 
-    // Je nach Status verschiedene Daten hinzufügen
+    // ===== STATUS-ABHÄNGIGE DATEN =====
+    // Je nach Spielstatus werden verschiedene Daten hinzugefügt:
     if (globalGameState.status === 'playing') {
-        baseState.currentRound = globalGameState.currentRound;
+        // WÄHREND RUNDE: Frontend braucht currentRound für Timer + Buchstabe
+        baseState.currentRound = globalGameState.currentRound; // { letter, timeLeft, endTime, etc. }
     } else if (globalGameState.status === 'results') {
-        baseState.lastRoundResults = globalGameState.lastRoundResults;
-        baseState.nextRoundIn = globalGameState.nextRoundIn || 0;
+        // NACH RUNDE: Frontend braucht Ergebnisse + Countdown zur nächsten Runde
+        baseState.lastRoundResults = globalGameState.lastRoundResults; // Wer hat was geantwortet + Punkte
+        baseState.nextRoundIn = globalGameState.nextRoundIn || 0; // Countdown: 10,9,8...
         baseState.nextRoundEndTime = globalGameState.nextRoundEndTime; // Für smooth Timer
     } else if (globalGameState.status === 'voting') {
-        baseState.voting = globalGameState.voting;
+        // WÄHREND ABSTIMMUNG: Frontend braucht voting für Abstimmungs-UI
+        baseState.voting = globalGameState.voting; // { word, category, votes, timeLeft }
     }
+    // LOBBY: Keine extra Daten nötig
     
-    return baseState;
+    return baseState; // Gefilterte, sichere Daten für Frontend
 }
 
 // DataStore Hilfsfunktion
@@ -58,14 +77,17 @@ function ensureDataStoreInitialized() {
     }
 }
 
-// Spieler beitritt
+// ===== SPIELER-BEITRITT =====
+// WICHTIGE ERKENNTNISSE:
+// - Lobby existiert NUR wenn players.length === 0 
+// - Erster Spieler → Spiel startet SOFORT (keine Wartelobby!)
+// - Während laufender Runde → Spieler wartet bis nächste Runde
 function joinGame(user) {
     ensureDataStoreInitialized();
     
-    // Prüfen ob User bereits im Spiel
+    // FALL 1: Spieler ist bereits im Spiel (Reconnect)
     const existingPlayer = globalGameState.players.find(p => p.id === user.id);
     if (existingPlayer) {
-        // Spieler ist bereits im Spiel - einfach verbunden markieren und Status zurückgeben
         existingPlayer.connected = true;
         return {
             success: true,
@@ -76,20 +98,20 @@ function joinGame(user) {
         };
     }
 
+    // Neuen Spieler erstellen (aber noch NICHT hinzufügen!)
     const newPlayer = {
-        id: user.id,  // User-ID aus JWT Token (ursprünglich aus DB)
-        name: user.username, // Username aus JWT Token
+        id: user.id,              // User-ID aus JWT Token
+        name: user.username,      // Username aus JWT Token
         connected: true,
-        answers: {},
-        roundPoints: 0,
-        waitingForNextRound: false // Flag für Spieler die während einer Runde joinen
+        answers: {},              // Antworten für aktuelle Runde
+        roundPoints: 0,           // Punkte der aktuellen Runde
+        waitingForNextRound: false // Flag: Muss bis nächste Runde warten?
     };
 
-    globalGameState.players.push(newPlayer);
-
-    // Wenn Spiel läuft - Spieler kann joinen aber muss bis zur nächsten Runde warten
+    // FALL 2: Spiel läuft bereits → Spieler muss warten
     if (globalGameState.status === 'playing') {
-        newPlayer.waitingForNextRound = true;
+        newPlayer.waitingForNextRound = true; // Flag setzen BEVOR er hinzugefügt wird
+        globalGameState.players.push(newPlayer); // Jetzt hinzufügen
         return {
             success: true,
             playerId: user.id,
@@ -99,9 +121,10 @@ function joinGame(user) {
         };
     }
 
-    // Wenn erster Spieler und Status ist lobby → Spiel automatisch starten
-    if (globalGameState.players.length === 1 && globalGameState.status === 'lobby') {
-        startNewRound();
+    // FALL 3: Erster Spieler in leerer Lobby → SOFORT SPIELEN!
+    if (globalGameState.players.length === 0 && globalGameState.status === 'lobby') {
+        globalGameState.players.push(newPlayer); // Hinzufügen
+        startNewRound(); // Spiel startet automatisch
         return {
             success: true,
             playerId: user.id,
@@ -110,65 +133,76 @@ function joinGame(user) {
         };
     }
 
-    return {
-        success: true,
-        playerId: user.id,
-        message: `Player ${user.username} joined the game`,
-        gameStarted: false
-    };
+    // FALL 4: Unerwarteter Zustand (sollte nie passieren)
+    // Mehrere Spieler in Lobby ist unmöglich, da erster Spieler → sofort spielen
+    throw new Error(`Cannot join game in unexpected state: status=${globalGameState.status}, players=${globalGameState.players.length}`);
 }
 
-// Neue Runde starten
+// ===== NEUE RUNDE STARTEN =====
 function startNewRound() {
     // Zufälligen Buchstaben wählen (kann sich wiederholen für infinite game)
     const randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
 
-    // Alle Spieler-Antworten und Rundenpunkte zurücksetzen
+    // Alle Spieler für neue Runde zurücksetzen
     globalGameState.players.forEach(player => {
-        player.answers = {};
-        player.roundPoints = 0;
-        player.waitingForNextRound = false; // Reset waiting flag für neue Runde
+        player.answers = {};                    // Leere Antworten
+        player.roundPoints = 0;                 // Punkte zurücksetzen
+        player.waitingForNextRound = false;     // Alle können wieder mitspielen
     });
 
-    // Neue Runde erstellen
+    // ===== CURRENTROUND ERSTELLEN =====
+    // Dies ist die Quelle für baseState.currentRound im Frontend!
     globalGameState.currentRound = {
-        letter: randomLetter,
-        categories: CATEGORIES,
-        timeLeft: ROUND_TIME,
-        startTime: Date.now(),
-        endTime: Date.now() + (ROUND_TIME * 1000) // Absolute End-Zeit für smooth Frontend-Timer
+        letter: randomLetter,                           // Der aktuelle Buchstabe (z.B. "A")
+        categories: CATEGORIES,                         // ["Stadt", "Land", "Fluss", "Tier"]
+        timeLeft: ROUND_TIME,                          // 60 Sekunden (wird jede Sekunde reduziert)
+        startTime: Date.now(),                         // Wann Runde startete (für Berechnung)
+        endTime: Date.now() + (ROUND_TIME * 1000)     // Absolute End-Zeit für smooth Frontend-Timer
     };
 
-    globalGameState.status = 'playing';
-    globalGameState.lastRoundResults = null; // Clear previous results
+    globalGameState.status = 'playing';                // Status auf 'playing' setzen
+    globalGameState.lastRoundResults = null;           // Vorherige Ergebnisse löschen
 
     console.log(`🎮 New round started with letter: ${randomLetter}`);
 
-    // Timer starten
-    startRoundTimer();
+    // ===== TIMER STARTEN =====
+    startRoundTimer(); // Startet setInterval für 60-Sekunden Countdown
 }
 
-// Round Timer starten
+// ===== TIMER-SYSTEM =====
+// WICHTIG: setInterval = "Mach das alle X Sekunden"
+//          clearInterval = "Hör auf damit!"
+
+// Round Timer starten - Der "Herzschlag" des Spiels
 function startRoundTimer() {
+    // DEFENSIVE PROGRAMMIERUNG: Alten Timer stoppen falls vorhanden
+    // Verhindert mehrere parallel laufende Timer (Race Conditions)
     if (globalGameState.timer) {
-        clearInterval(globalGameState.timer);
+        clearInterval(globalGameState.timer); // Timer stoppen
     }
 
+    // NEUEN TIMER STARTEN: Alle 1000ms (1 Sekunde) ausführen
     globalGameState.timer = setInterval(() => {
-        updateTimer();
+        updateTimer();  // Zeit reduzieren (60 → 59 → 58 ...)
         
-        // Prüfen ob Zeit abgelaufen oder alle haben abgegeben
+        // RUNDE BEENDEN wenn:
+        // 1. Zeit abgelaufen (timeLeft <= 0) ODER
+        // 2. Alle aktiven Spieler haben abgegeben
         if (globalGameState.currentRound.timeLeft <= 0 || allPlayersSubmitted()) {
-            endRound();
+            endRound(); // Runde beenden
         }
-    }, 1000);
+    }, 1000);  // ← 1000ms = 1 Sekunde Intervall ("Tick-Tock")
 }
 
-// Timer aktualisieren
+// Timer aktualisieren - Berechnet aktuelle verbleibende Zeit
 function updateTimer() {
+    // SAFETY CHECK: Falls currentRound null ist (Race Condition)
+    // Verhindert Crashes nach Rundende wenn Timer noch läuft
     if (!globalGameState.currentRound) return;
 
+    // Zeit berechnen: Wie viele Sekunden sind seit Rundenbeginn vergangen?
     const elapsed = Math.floor((Date.now() - globalGameState.currentRound.startTime) / 1000);
+    // Verbleibende Zeit = Gesamtzeit - vergangene Zeit (min. 0)
     globalGameState.currentRound.timeLeft = Math.max(0, ROUND_TIME - elapsed);
 }
 
@@ -304,59 +338,46 @@ async function calculatePlayerPreviewPoints(player) {
     };
 }
 
-// Runde beenden
+// ===== RUNDE BEENDEN =====
 async function endRound() {
+    // TIMER STOPPEN: Wichtig um Memory Leaks zu vermeiden
     if (globalGameState.timer) {
-        clearInterval(globalGameState.timer);
-        globalGameState.timer = null;
+        clearInterval(globalGameState.timer); // Timer stoppen
+        globalGameState.timer = null;         // Timer-ID löschen
     }
 
-    // Punkte berechnen
-    await calculateAndSavePoints();
+    // Buchstaben SICHERN bevor currentRound gelöscht wird
+    const currentLetter = globalGameState.currentRound.letter;
+    globalGameState.currentRound = null; // Round-Daten löschen (Status → nicht mehr 'playing')
 
-    // Rundenergebnisse für Frontend vorbereiten
-    globalGameState.lastRoundResults = {
-        letter: globalGameState.currentRound.letter,
+    // ===== PUNKTE BERECHNEN =====
+    // ERST finale Punkte berechnen (mit Unique-Bonus + Ähnlichkeits-Algorithmus)
+    await calculateAndSavePoints(currentLetter);
+
+    // ===== LASTROUNDRESULTS ERSTELLEN =====
+    // DANN Rundenergebnisse für Frontend vorbereiten
+    // WARUM SPEICHERN? Frontend braucht diese Daten für Results-Screen:
+    // - Welcher Buchstabe war dran? (currentRound ist schon null!)
+    // - Was hat jeder geantwortet?
+    // - Wie viele Punkte wurden vergeben?
+    const roundResults = {
+        letter: currentLetter,    // Buchstabe der beendeten Runde
         playerResults: globalGameState.players.map(p => ({
             name: p.name,
-            answers: p.answers,
-            roundPoints: p.roundPoints,
-            details: getPlayerRoundDetails(p, globalGameState.currentRound.letter)
+            answers: p.answers,           // Was wurde geantwortet
+            roundPoints: p.roundPoints,   // Erhaltene Punkte (nach Berechnung!)
+            details: getPlayerRoundDetails(p, currentLetter)
         }))
     };
 
-    globalGameState.status = 'results';
-    globalGameState.currentRound = null;
+    globalGameState.lastRoundResults = roundResults; // Für Frontend verfügbar machen
 
     console.log(`📊 Round ended. Results:`, globalGameState.lastRoundResults.playerResults.map(p => `${p.name}: ${p.roundPoints}pts`));
-
-    // Nach 10 Sekunden automatisch nächste Runde starten (wenn Spieler da sind)
-    let countdown = 10;
-    globalGameState.nextRoundIn = countdown;
-    globalGameState.nextRoundEndTime = Date.now() + 10000; // Absolute End-Zeit für Lobby-Timer
-    
-    const countdownTimer = setInterval(() => {
-        countdown--;
-        globalGameState.nextRoundIn = countdown;
-        
-        if (countdown <= 0) {
-            clearInterval(countdownTimer);
-            
-            // Wenn noch Spieler da sind → nächste Runde
-            if (globalGameState.players.length > 0) {
-                startNewRound();
-            } else {
-                // Keine Spieler mehr → zurück zur Lobby
-                globalGameState.status = 'lobby';
-                globalGameState.lastRoundResults = null;
-            }
-        }
-    }, 1000);
 }
 
 // Finale Punkte berechnen und in DB speichern (mit Unique-Bonus)
-async function calculateAndSavePoints() {
-    const currentLetter = globalGameState.currentRound.letter.toLowerCase();
+async function calculateAndSavePoints(currentLetter) {
+    const currentLetterLower = currentLetter.toLowerCase();
     const db = require('../../db'); // DB-Verbindung
     const pendingVotes = []; // { word, category, playerId, playerName }
 
@@ -365,12 +386,13 @@ async function calculateAndSavePoints() {
         player.roundPoints = 0;
     });
 
-    CATEGORIES.forEach(categoryName => {
+    // CATEGORIES mit for...of statt forEach für async/await
+    for (const categoryName of CATEGORIES) {
         // Category-ID aus DataStore holen
         const categoryData = dataStore.findCategoryByName(categoryName);
         if (!categoryData) {
             console.warn(`Category '${categoryName}' not found in database`);
-            return;
+            continue;
         }
 
         // Alle Antworten für diese Kategorie sammeln
@@ -388,22 +410,22 @@ async function calculateAndSavePoints() {
         });
 
         // Punkte vergeben
-        answers.forEach(async a => {
+        for (const a of answers) {
             const player = globalGameState.players.find(p => p.id === a.playerId);
             const normalizedAnswer = a.answer.toLowerCase().trim();
             
             // 1. Prüfen ob Antwort mit richtigem Buchstaben beginnt
-            const startsWithLetter = normalizedAnswer.startsWith(currentLetter);
+            const startsWithLetter = normalizedAnswer.startsWith(currentLetterLower);
             if (!startsWithLetter) {
                 console.log(`❌ ${a.playerName}: "${a.answer}" (Category: ${categoryName}) - Wrong letter`);
-                return; // 0 Punkte
+                continue; // 0 Punkte
             }
 
             // 2. Prüfen ob Wort in der Datenbank existiert
             const wordInDB = dataStore.findWordInCategory(a.answer, categoryData.category_id);
             if (!wordInDB) {
                 // Prüfe auf ähnliche Wörter (bis zu 80% Fehlerquote), aber nur mit richtigem Anfangsbuchstaben
-                const similarWord = findSimilarWord(a.answer, categoryData.category_id, currentLetter);
+                const similarWord = findSimilarWord(a.answer, categoryData.category_id, currentLetterLower);
                 if (similarWord && similarWord.similarity) {
                     // Grundpunkte basierend auf Wortlänge für ähnliche Wörter
                     let basePoints = a.answer.length;
@@ -452,7 +474,7 @@ async function calculateAndSavePoints() {
                         playerName: a.playerName
                     });
                 }
-                return;
+                continue; // Nächste Antwort in dieser Kategorie
             }
 
             // 3. Grundpunkte basierend auf Wortlänge::::80% richtiges Wort soll trotzdem Punkte geben sagt Chef
@@ -492,13 +514,45 @@ async function calculateAndSavePoints() {
                     console.error(`❌ Failed to save game entry for ${a.playerName}:`, error);
                 }
             }
-        });
-    });
+        }
+    } // Ende der for...of Schleife
 
-    // Wenn es Wörter für Abstimmung gibt, starte Abstimmung
+    // Wenn es Wörter für Abstimmung gibt, starte Abstimmungssequenz
     if (pendingVotes.length > 0) {
-        startVoting(pendingVotes[0]); // Erstes Wort zur Abstimmung
+        globalGameState.votingQueue = [...pendingVotes]; // ALLE falschen Wörter in Queue
+        console.log(`🗳️ Starting voting sequence for ${globalGameState.votingQueue.length} words`);
+        startNextVoting(); // Startet das erste Voting aus der Queue
+    } else {
+        // Kein Voting → Direkt zu Results
+        globalGameState.status = 'results';
+        
+        // Nach 10 Sekunden automatisch nächste Runde starten
+        setupNextRoundTimer();
     }
+}
+
+// Next Round Timer Setup (ausgelagert)
+function setupNextRoundTimer() {
+    let countdown = 10;
+    globalGameState.nextRoundIn = countdown;
+    globalGameState.nextRoundEndTime = Date.now() + 10000;
+    
+    const countdownTimer = setInterval(() => {
+        countdown--;
+        globalGameState.nextRoundIn = countdown;
+        
+        if (countdown <= 0) {
+            clearInterval(countdownTimer);
+            
+            // Wenn noch Spieler da sind → nächste Runde
+            if (globalGameState.players.length > 0) {
+                startNewRound();
+            } else {
+                // Spiel beenden wenn keine Spieler mehr da
+                resetGame();
+            }
+        }
+    }, 1000);
 }
 
 // Hilfsfunktion für detaillierte Rundenergebnisse
@@ -550,7 +604,10 @@ function resetGame() {
         currentRound: null,
         lastRoundResults: null,
         timer: null,
-        voting: null
+        voting: null,
+        votingQueue: [],             // Voting-Queue zurücksetzen
+        nextRoundIn: 0,              // Countdown zurücksetzen
+        nextRoundEndTime: null       // Timer zurücksetzen
     };
     
     console.log('🔄 Game reset to lobby');
@@ -650,6 +707,22 @@ function levenshteinDistance(str1, str2) {
 
 // ====== VOTING SYSTEM ======
 
+// Nächstes Voting aus der Queue starten
+function startNextVoting() {
+    if (globalGameState.votingQueue.length === 0) {
+        // Keine Wörter mehr in der Queue → Zu Results
+        console.log(`🎯 All voting completed, moving to results`);
+        globalGameState.status = 'results';
+        setupNextRoundTimer();
+        return;
+    }
+
+    // Erstes Wort aus der Queue nehmen
+    const nextVote = globalGameState.votingQueue.shift(); // shift() entfernt und gibt erstes Element zurück
+    console.log(`🗳️ Starting vote ${globalGameState.votingQueue.length + 1} for "${nextVote.word}" - ${globalGameState.votingQueue.length} remaining`);
+    startVoting(nextVote);
+}
+
 // Abstimmung für ein unbekanntes Wort starten
 function startVoting(pendingVote) {
     globalGameState.status = 'voting';
@@ -660,18 +733,19 @@ function startVoting(pendingVote) {
         playerId: pendingVote.playerId,
         playerName: pendingVote.playerName,
         votes: { yes: [], no: [] },
-        timeLeft: 30, // 30 Sekunden für Abstimmung
+        timeLeft: 60, // 60 Sekunden für Abstimmung (länger für bessere UX)
         startTime: Date.now(),
-        endTime: Date.now() + 30000 // Absolute End-Zeit für Voting
+        endTime: Date.now() + 60000 // 60 Sekunden Timer
     };
 
-    console.log(`🗳️ Voting started for "${pendingVote.word}" (${pendingVote.category}) by ${pendingVote.playerName}`);
+    console.log(`🗳️ Voting started for "${pendingVote.word}" (${pendingVote.category}) by ${pendingVote.playerName} - 60 seconds to decide`);
 
     // Timer für Abstimmung starten
     globalGameState.timer = setInterval(() => {
-        globalGameState.voting.timeLeft = Math.max(0, 30 - Math.floor((Date.now() - globalGameState.voting.startTime) / 1000));
+        globalGameState.voting.timeLeft = Math.max(0, 60 - Math.floor((Date.now() - globalGameState.voting.startTime) / 1000));
 
-        if (globalGameState.voting.timeLeft <= 0 || allPlayersVoted()) {
+        // NUR bei Zeit abgelaufen beenden - KEIN Auto-Accept mehr!
+        if (globalGameState.voting.timeLeft <= 0) {
             endVoting();
         }
     }, 1000);
@@ -701,7 +775,7 @@ function vote(user, voteType) {
 
     console.log(`🗳️ ${user.username} voted ${voteType} for "${globalGameState.voting.word}"`);
 
-    // Prüfe ob alle abgestimmt haben
+    // Prüfe ob alle abgestimmt haben - NUR wenn ALLE Spieler abgestimmt haben
     if (allPlayersVoted()) {
         endVoting();
     }
@@ -715,6 +789,13 @@ function allPlayersVoted() {
     
     const votedPlayerIds = [...globalGameState.voting.votes.yes, ...globalGameState.voting.votes.no];
     const activePlayers = globalGameState.players.filter(p => !p.waitingForNextRound);
+    
+    // Bei 0 Spielern → nicht alle haben gevotet (verhindert sofortiges Ende)
+    if (activePlayers.length === 0) return false;
+    
+    // ALLE SPIELER müssen abstimmen - auch der der das Wort eingegeben hat!
+    // KEIN Auto-Accept mehr - jeder entscheidet selbst über sein Wort
+    console.log(`🗳️ Voting check: ${votedPlayerIds.length}/${activePlayers.length} players voted (including word submitter)`);
     
     return activePlayers.every(player => votedPlayerIds.includes(player.id));
 }
@@ -732,7 +813,8 @@ async function endVoting() {
 
     console.log(`🗳️ Voting ended for "${voting.word}": ${yesVotes} yes, ${noVotes} no`);
 
-    // Entscheidung treffen (Mehrheit gewinnt)
+    // EINFACHE DEMOKRATISCHE ENTSCHEIDUNG - Mehrheit gewinnt!
+    // Kein Auto-Accept, keine komplizierte Validierung
     if (yesVotes > noVotes) {
         // Wort akzeptiert - zur DB hinzufügen und Punkte vergeben
         try {
@@ -743,20 +825,30 @@ async function endVoting() {
                 const points = voting.word.length; // Grundpunkte basierend auf Wortlänge
                 player.roundPoints = (player.roundPoints || 0) + points;
                 
-                console.log(`✅ Word "${voting.word}" accepted and ${points} points awarded to ${voting.playerName}`);
+                console.log(`✅ Word "${voting.word}" accepted by majority vote and ${points} points awarded to ${voting.playerName}`);
             }
         } catch (error) {
             console.error(`❌ Failed to add word "${voting.word}" to database:`, error);
         }
     } else {
-        console.log(`❌ Word "${voting.word}" rejected by vote`);
+        console.log(`❌ Word "${voting.word}" rejected by majority vote (or tie = reject)`);
     }
 
     // Abstimmung zurücksetzen
     globalGameState.voting = null;
 
-    // Zurück zu results 
-    globalGameState.status = 'results';
+    // Results mit aktuellen Punkten aktualisieren falls sie existieren
+    if (globalGameState.lastRoundResults) {
+        globalGameState.lastRoundResults.playerResults.forEach(result => {
+            const player = globalGameState.players.find(p => p.name === result.name);
+            if (player) {
+                result.roundPoints = player.roundPoints; // Aktualisierte Punkte nach Voting
+            }
+        });
+    }
+    
+    // NÄCHSTES VOTING starten oder zu Results wenn Queue leer
+    startNextVoting();
 }
 
 module.exports = {

@@ -12,6 +12,18 @@
   overflow: hidden;
 }
 
+/* Loading & Error States */
+.loading, .error {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 18px;
+  color: #8b4513;
+  background-color: rgba(211, 191, 166, 0.2);
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 400px;
+}
+
 /* Emilia */
 .highscore-header {
   display: flex;
