@@ -1,4 +1,4 @@
---Autor: Nikolas Paul Zimmer
+--Autor: Nikolas Paul Zimmer & Emilia &TTorga
 --Datenbank-Init für Stadt-Land-Fluss
 --Tabelle für Benutzer, mit email, username, Passwort-Hash und Rolle (Admin/Normal)
 CREATE TABLE users (

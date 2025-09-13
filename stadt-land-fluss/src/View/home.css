@@ -1,14 +1,14 @@
-/* Emilia */
+/* Autor Emilia */
+/* Header-Stile: Flexbox-Layout für Logo und Buttons */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fff9ef;
+  background-color: #fff9ef; /* Heller Hintergrund */
   padding-bottom: 10px;
-
 }
 
-/* Emilia */
+/* Logo-Stile: Zentriertes Logo mit fester Größe */
 .logo {
   background-size: contain;
   background-repeat: no-repeat;
@@ -19,21 +19,19 @@ header {
   gap: 10px;
 }
 
-/* Emilia */
+/* Header-Buttons: Flexbox für responsive Button-Anordnung */
 .headerButtons {
   gap: 10px;
   display: flex;
   align-items: center;
   flex-wrap: wrap; /* Buttons umbrechen bei zu wenig Platz */
-  
 }
 .headerButtons button {
   flex: 1 1 auto; /* Buttons wachsen und schrumpfen */
-  
 }
 
 
-/* Emilia */
+/* Hilfe-Button: Quadratischer Button mit fester Größe */
 .helpBtn {
   border: 1px solid black;
   width: 60px;
@@ -43,7 +41,7 @@ header {
   font-size: 20px;
 }
 
-/* Emilia */
+/* Admin-Button: Standard-Button für Admin-Bereich */
 .adminBtn {
   border: 1px solid black;
   background-color: white;
@@ -51,20 +49,18 @@ header {
   font-size: 20px;
 }
 
-/* Emilia */
+/* Login-Button: Button für Login/Logout */
 .loginBtn {
   border: 1px solid black;
   background-color: white;
-
   cursor: pointer;
   font-size: 20px;
 }
 
-/* Emilia */
+/* Impressum-Button: Button für Impressum-Seite */
 .impressumBtn {
   border: 1px solid black;
   background-color: white;
-
   cursor: pointer;
   font-size: 20px;
 }

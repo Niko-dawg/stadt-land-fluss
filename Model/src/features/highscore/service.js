@@ -1,5 +1,5 @@
 // Highscore Service - Geschäftslogik für Highscore-Berechnungen  
-// Autor: GitHub Copilot
+// Autor: Torga
 
 const DataStore = require('../../store/DataStore');
 const db = require('../../db');

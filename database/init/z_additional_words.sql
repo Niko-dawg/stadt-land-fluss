@@ -1,4 +1,4 @@
--- Autor: GitHub Copilot
+-- Autor: Torga & Emilia
 -- Zusätzliche Wörter für Stadt-Land-Fluss Spiel
 -- 1000 neue Wörter, keine Duplikate zu data.sql
 

@@ -1,33 +1,35 @@
-import React, { useState } from "react";
-import "./login.css";
-import { useNavigate } from "react-router-dom";
+// Login-Fenster-Komponente: Ermöglicht Benutzer-Login
+import React, { useState } from "react"; // React-Hook für State
+import "./login.css"; // Login-CSS
+import { useNavigate } from "react-router-dom"; // Navigation-Hook
 
-/* Emilia */
+//Autor : Torga & Emilia
 export function LoginWindow() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate(); // Navigation-Funktion
+  const [email, setEmail] = useState(''); // Email-State
+  const [password, setPassword] = useState(''); // Passwort-State
+  const [error, setError] = useState(''); // Fehler-State
+  const [isLoading, setIsLoading] = useState(false); // Lade-State
 
+  // Schließt Login-Fenster und navigiert zur Startseite
   const handleClose = () => {
     navigate('/');
   };
 
+  // Login-Handler: Validiert Eingaben und sendet API-Request
   const handleLogin = async () => {
-    // Reset error
-    setError('');
-    
-    // Validation
+    setError(''); // Fehler zurücksetzen
+
+    // Validierung: Felder prüfen
     if (!email || !password) {
       setError('Bitte füllen Sie alle Felder aus.');
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading(true); // Lade-Status setzen
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/login', { // Login-API aufrufen
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,16 +43,16 @@ export function LoginWindow() {
       const data = await response.json();
 
       if (response.ok) {
-        // Login erfolgreich
+        // Erfolgreicher Login
         console.log('Login erfolgreich:', data.user);
-        
-        // User-Daten UND Token speichern
+
+        // User-Daten und Token in localStorage speichern
         localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);  // Konsistent mit admin.js
-        
-        navigate('/');
+        localStorage.setItem('token', data.token); // Konsistent mit admin.js
+
+        navigate('/'); // Zur Startseite navigieren
       } else {
-        // Login fehlgeschlagen
+        // Fehlerhafte Anmeldedaten
         switch (data.error) {
           case 'MISSING_FIELDS':
             setError('Bitte füllen Sie alle Felder aus.');
@@ -66,7 +68,7 @@ export function LoginWindow() {
       console.error('Login error:', err);
       setError('Verbindungsfehler. Versuchen Sie es später erneut.');
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Lade-Status zurücksetzen
     }
   };
 

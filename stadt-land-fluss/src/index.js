@@ -1,7 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.js";
+// Einstiegspunkt der React-Anwendung
+// Autor: Torga
+import React from "react"; // React-Bibliothek
+import ReactDOM from "react-dom/client"; // ReactDOM für Rendering
+import App from "./App.js"; // Haupt-App-Komponente
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+// Erstellt Root-Element und rendert die App
+const root = ReactDOM.createRoot(document.getElementById("root")); // Root-Container aus HTML
+root.render(<App />); // Rendert App-Komponente in den DOM
 

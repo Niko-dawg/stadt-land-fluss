@@ -1,5 +1,5 @@
 // Highscore Controller - Business Logic für Highscore API
-// Autor: GitHub Copilot
+// Autor: Torga
 
 const highscoreService = require('./service');
 

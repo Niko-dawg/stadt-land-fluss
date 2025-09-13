@@ -1,52 +1,52 @@
-import React, { useState, useEffect } from "react";
-import "./spiel.css";
-import { Header } from "../components/Header.js";
-import { useNavigate, useParams } from "react-router-dom";
+// Spiel-Komponente: Hauptspiel-Logik für Single- und Multiplayer
+import React, { useState, useEffect } from "react"; // React-Hooks
+import "./spiel.css"; // Spiel-CSS
+import { Header } from "../components/Header.js"; // Header-Komponente
+import { useNavigate, useParams } from "react-router-dom"; // Navigation und URL-Parameter
 
 /* Emilia & Torga */
 export function Spiel() {
-  const navigate = useNavigate();
-  const { gameMode } = useParams(); // 'single' oder 'multi'
-  const [gameState, setGameState] = useState(null);
-  const [answers, setAnswers] = useState({
+  const navigate = useNavigate(); // Navigation-Funktion
+  const { gameMode } = useParams(); // Spielmodus aus URL ('single' oder 'multi')
+  const [gameState, setGameState] = useState(null); // Aktueller Spielstatus
+  const [answers, setAnswers] = useState({ // Antworten-State
     Stadt: '',
     Land: '',
     Fluss: '',
     Tier: ''
   });
-  const [submissionResult, setSubmissionResult] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  // Smooth Timer States
+  const [submissionResult, setSubmissionResult] = useState(null); // Abgabe-Ergebnis
+  const [isSubmitted, setIsSubmitted] = useState(false); // Abgabe-Status
+  const [loading, setLoading] = useState(true); // Lade-Status
+  const [error, setError] = useState(null); // Fehler-Status
+
+  // Smooth Timer States für flüssige Countdowns
   const [smoothTimer, setSmoothTimer] = useState(0);
   const [smoothLobbyTimer, setSmoothLobbyTimer] = useState(0);
   const [smoothVotingTimer, setSmoothVotingTimer] = useState(0);
 
-  // Voting-Hilfsfunktionen
+  // Hilfsfunktion: Prüft ob aktueller Spieler bereits abgestimmt hat
   const hasVoted = () => {
     if (!gameState?.voting) return false;
     const token = localStorage.getItem('token');
     if (!token) return false;
-    
-    // Decode JWT to get user ID (simple base64 decode)
+
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split('.')[1])); // JWT decodieren
       return [...gameState.voting.votes.yes, ...gameState.voting.votes.no].includes(payload.id);
     } catch {
       return false;
     }
   };
 
-  // Check if current player is waiting for next round
+  // Hilfsfunktion: Prüft ob Spieler auf nächste Runde wartet
   const isWaitingForNextRound = () => {
     if (!gameState?.players) return false;
     const token = localStorage.getItem('token');
     if (!token) return false;
-    
+
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split('.')[1])); // JWT decodieren
       const currentPlayer = gameState.players.find(p => p.id === payload.id);
       return currentPlayer?.waitingForNextRound || false;
     } catch {

@@ -2,7 +2,7 @@ import React from "react";
 import "./admin.css";
 import { useNavigate } from "react-router-dom";
 
-/* Emilia */
+/*Autor : Torga & Emilia */
 export default function AdminUserVerwaltung() {
     const navigate = useNavigate();
     const [adminEmail, setAdminEmail] = React.useState("");

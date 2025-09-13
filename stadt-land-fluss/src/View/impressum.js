@@ -4,7 +4,7 @@ import logo from './img/Logo.png';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header.js';
 
-/* Emilia */
+/* Autoren Emilia */
 const Impressum = () => {
   const navigate = useNavigate();
   
@@ -26,9 +26,9 @@ const Impressum = () => {
     },
     {
       imgAlt: 'Foto Torga',
-      name: 'Torga',
+      name: 'Caner Torga Aslan',
       company: 'Vodafone',
-      email: 'torga@email.com',
+      email: 'torgaaslan@gmail.com',
     },
     {
       imgAlt: 'Foto Nikolas Zimmer',

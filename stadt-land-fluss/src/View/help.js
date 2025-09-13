@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./help.css";
 import logo from "./img/Logo.png"; // Beispiel-Logo, bitte eigenes Logo hier einfügen
 
-/* Emilia */
+/*Autor Emilia */
 export default function HelpPage() {
   return (
     <div className="help-page">

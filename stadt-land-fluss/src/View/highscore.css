@@ -1,7 +1,8 @@
-/* Emilia */
+/*Autor :Emilia*/
+/* Haupt-Container für Highscore-Seite: Zentrierte Layout mit Hintergrund */
 .highscore-container {
   position: relative;
-  background-color: #fff9ef;
+  background-color: #fff9ef; /* Heller Hintergrund */
   padding: 40px 20px;
   max-width: 1200px;
   margin: 30px auto;
@@ -12,7 +13,7 @@
   overflow: hidden;
 }
 
-/* Loading & Error States */
+/* Lade- und Fehlerzustände: Zentrierte Nachrichten */
 .loading, .error {
   text-align: center;
   padding: 40px 20px;
@@ -24,7 +25,7 @@
   max-width: 400px;
 }
 
-/* Emilia */
+/* Header-Bereich: Flexbox für Logo und Buttons */
 .highscore-header {
   display: flex;
   justify-content: space-between;
@@ -34,7 +35,7 @@
   position: relative;
 }
 
-/* Emilia */
+/* Logo im Header: Flexbox mit Text */
 .highscore-logo {
   display: flex;
   align-items: center;
@@ -44,13 +45,13 @@
   color: #333;
 }
 
-/* Emilia */
+/* Header-Buttons: Flexbox für Navigation */
 .highscore-headerButtons {
   display: flex;
   gap: 10px;
 }
 
-/* Emilia */
+/* Navigation-Buttons: Transparente Buttons mit Hover-Effekt */
 .highscore-impressumBtn,
 .highscore-helpBtn,
 .highscore-homeBtn {
@@ -63,14 +64,14 @@
   transition: background 0.2s;
 }
 
-/* Emilia */
+/* Hover-Effekt für Navigation-Buttons */
 .highscore-impressumBtn:hover,
 .highscore-helpBtn:hover,
 .highscore-homeBtn:hover {
   background: #f5e6c8;
 }
 
-/* Emilia */
+/* Titel der Highscore-Seite: Großer zentrierter Text */
 .highscore-title {
   font-size: 48px;
   font-weight: bold;
@@ -80,7 +81,7 @@
   position: relative;
 }
 
-/* Emilia */
+/* Container für Highscore-Tabelle: Positionierung über Hintergrund */
 .highscore-table-container {
   margin-top: 30px;
   position: relative;
@@ -88,7 +89,7 @@
 }
 
 
-/* Emilia */
+/* Highscore-Tabelle: Zentrierte Tabelle mit fester Breite */
 .highscore-table {
   width: 60%;
   margin: 0 auto;
@@ -101,35 +102,34 @@
   z-index: 2;
 }
 
-
-/* Emilia */
+/* Tabellen-Zellen: Schwarze Rahmen und Padding */
 .highscore-table th,
 .highscore-table td {
   border: 2px solid black;
   padding: 10px 20px;
 }
 
-/* Emilia */
+/* Tabellen-Header: Heller Hintergrund */
 .highscore-table th {
   background-color: #fff9ef;
 }
 
-/* Emilia */
+/* Tabellen-Daten: Grauer Hintergrund */
 .highscore-table td {
   background-color: #d3d3d3;
 }
 
-/* Emilia */
+/* Krone-Zelle: Goldener Hintergrund für Gewinner */
 .highscore-table td.crown {
   background-color: #ffe082;
   font-size: 24px;
 }
 
-/* Emilia */
+/* Hintergrund-Bild: Wegweiser als dekoratives Element */
 .highscore-weather-vane {
   background-image: url('./img/wegweiser.png');
   position: absolute;
-  bottom: -23%; /* Passe die Position ggf. an */
+  bottom: -13%; /* Position unter der Tabelle */
   left: 50%;
   transform: translateX(-50%);
   width: 400px;

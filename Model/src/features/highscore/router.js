@@ -1,5 +1,5 @@
 // Highscore Router - API Endpoints für Highscore-Funktionalität
-// Autor: GitHub Copilot
+// Autor: Torga
 
 const express = require('express');
 const highscoreController = require('./controller');

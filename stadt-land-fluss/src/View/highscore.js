@@ -3,7 +3,7 @@ import "./highscore.css";
 import { Header } from "../components/Header.js";
 import { useNavigate, useParams } from "react-router-dom";
 
-/* Emilia */
+//Autor : Torga & Emilia
 export function Highscore() {
   const navigate = useNavigate();
   const [highscores, setHighscores] = useState([]);

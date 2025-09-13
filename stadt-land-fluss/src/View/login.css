@@ -1,9 +1,10 @@
-/* Emilia */
+/*Autor: Emilia*/
+/* Login-Fenster: Modal-Dialog für Benutzer-Login */
 .login-window {
   width: 25%;
   height: 40%;
   border: 2px solid #222;
-  background-color: rgba(220,220,220,0.97);
+  background-color: rgba(220,220,220,0.97); /* Heller grauer Hintergrund */
   position: fixed;
   top: 50%;
   left: 50%;
@@ -15,7 +16,7 @@
   z-index: 1000;
 }
 
-/* Emilia */
+/* Login-Header: Zentrierter Titel mit Unterstrich */
 .login-header {
   border-bottom: 2px solid #222;
   text-align: center;
@@ -25,7 +26,7 @@
   padding-bottom: 8px;
 }
 
-/* Emilia */
+/* Schließ-Button: Positioniert rechts oben */
 .close-button {
   position: absolute;
   right: 14px;
@@ -37,12 +38,13 @@
   color: #222;
   transition: color 0.2s;
 }
-/* Emilia */
+
+/* Hover-Effekt für Schließ-Button: Rot bei Hover */
 .close-button:hover {
   color: #b00;
 }
 
-/* Emilia */
+/* Input-Labels: Zentrierte Labels über Eingabefeldern */
 .input-label {
   display: block;
   margin: 18px auto 6px auto;
@@ -51,7 +53,7 @@
   font-weight: 500;
 }
 
-/* Emilia */
+/* Passwort-Eingabefeld: Zentriertes Feld mit Rahmen */
 .input-field-password {
   width: 90%;
   padding: 7px;
@@ -64,7 +66,7 @@
   box-sizing: border-box;
 }
 
-/* Emilia */
+/* Benutzername-Eingabefeld: Zentriertes Feld mit Rahmen */
 .input-field-username {
   width: 90%;
   padding: 7px;
@@ -76,24 +78,27 @@
   background: #fff;
   box-sizing: border-box;
 }
-/* Emilia */
+
+/* Login-Button: Vollbreite mit Hover-Effekt */
 .login-window button:not(.close-button) {
   width: 100%;
   padding: 9px 0;
   font-size: 16px;
   border: 2px solid #222;
   border-radius: 8px;
-  background: #f5e6c8;
+  background: #f5e6c8; /* Heller gelber Hintergrund */
   cursor: pointer;
   margin-top: 20px;
   font-weight: bold;
   transition: background 0.2s;
 }
-/* Emilia */
+
+/* Hover-Effekt für Login-Button: Hellerer Hintergrund */
 .login-window button:not(.close-button):hover {
   background: #ffe082;
 }
-/* Emilia */
+
+/* Allgemeine Input-Felder: Schriftart und Buchstabenabstand */
 .input-field {
   font-family: Arial, sans-serif;
   letter-spacing: normal;
