@@ -1,30 +1,45 @@
-//Autor: Torga Aslan
-//Controller für die Authentifizierung  liest den request.body aus, leitet die Daten an den Service weiter und ordnet Fehlermeldungen den http-status-codes zu.
-//Anschließend wird die Antwort im JSON-Format zurückgeschickt 
+//===================================================================
+// Auth Controller - HTTP Request/Response Handling für Authentifizierung
+// Autor: Torga Aslan
+//===================================================================
+// Zweck: HTTP-Layer zwischen Client und Business Logic
+// Flow: HTTP Request → Input Validation → Service Call → Error Handling → JSON Response
+
 const svc = require('./service');
 
+// POST /api/auth/register - Neuen Benutzer registrieren
 async function register(req, res) {
   try {
-    //Auslesen des req.body und Weiterleitung an den Service
+    // Request Body an Service weiterleiten für Validierung und DB-Insert
     const { user } = await svc.register(req.body || {});
-    //Bei Erfolg: statuscode 201 und user werden zurückgeschickt
+    
+    // Erfolgreich: HTTP 201 Created + User-Daten zurückgeben
     res.status(201).json({ user, note: 'Dev-Mode: JWT folgt' });
   } catch (e) {
-    // Fehlerbehandlung: Mappings der Fehler zu HTTP-Status-Codes
-    const map = { MISSING_FIELDS: 400, EMAIL_EXISTS: 409 };
-    res.status(map[e.message] || 500).json({ error: e.message });
+    // Error-Mapping: Service Errors → HTTP Status Codes
+    const statusCodeMapping = { 
+      MISSING_FIELDS: 400,  // Bad Request - Pflichtfelder fehlen
+      EMAIL_EXISTS: 409     // Conflict - E-Mail bereits registriert
+    };
+    res.status(statusCodeMapping[e.message] || 500).json({ error: e.message });
   }
 }
+
+// POST /api/auth/login - Benutzer anmelden und JWT Token generieren
 async function login(req, res) {
   try {
-    //Auslesen des req.body und Weiterleitung an den Service
+    // Login-Credentials (email, password) an Service für Authentifizierung
     const { user, token } = await svc.login(req.body || {});
-    //Bei Erfolg: User-Daten UND Token werden zurückgeschickt
+    
+    // Erfolgreich: HTTP 200 OK + User-Daten + JWT Access Token
     res.json({ user, token });
   } catch (e) {
-    // Fehlerbehandlung: Mappings der Fehler zu HTTP-Status-Codes
-    const map = { MISSING_FIELDS: 400, INVALID_CREDENTIALS: 401 };
-    res.status(map[e.message] || 500).json({ error: e.message });
+    // Error-Mapping für Login-spezifische Fehler
+    const statusCodeMapping = { 
+      MISSING_FIELDS: 400,       // Bad Request - Email/Password fehlen
+      INVALID_CREDENTIALS: 401   // Unauthorized - Falsche Anmeldedaten
+    };
+    res.status(statusCodeMapping[e.message] || 500).json({ error: e.message });
   }
 }
 

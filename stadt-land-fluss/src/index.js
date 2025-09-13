@@ -1,10 +1,25 @@
-// Einstiegspunkt der React-Anwendung
-// Autor: Torga
-import React from "react"; // React-Bibliothek
-import ReactDOM from "react-dom/client"; // ReactDOM für Rendering
-import App from "./App.js"; // Haupt-App-Komponente
+//===================================================================
+// REACT ENTRY POINT - Haupteinstiegspunkt der React Application
+//===================================================================
+// Autor: Torga Aslan
+//
+// Beschreibung: React DOM Rendering Setup 
+// - React 18 createRoot API für Concurrent Features
+// - App Component Mount ins HTML root-Element
+// - Entry Point für Webpack Bundle
+//===================================================================
 
-// Erstellt Root-Element und rendert die App
-const root = ReactDOM.createRoot(document.getElementById("root")); // Root-Container aus HTML
-root.render(<App />); // Rendert App-Komponente in den DOM
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.js";
+
+//===================================================================
+// REACT DOM RENDERING - App Mount Point
+//===================================================================
+
+// React 18 Root Creation - Aktiviert Concurrent Features
+const root = ReactDOM.createRoot(document.getElementById("root")); // HTML root-Container
+
+// App Component Rendering - Mount Main App ins DOM
+root.render(<App />); // React App startet hier
 

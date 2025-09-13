@@ -1,12 +1,26 @@
-// Home-Seite: Startseite mit Multiplayer-Button und Login-Popup
-import React, { useState } from "react"; // React-Hook für State
-import "./home.css"; // CSS-Stile
-import { useNavigate } from "react-router-dom"; // Navigation-Hook
-import { Header } from "../components/Header.js"; // Header-Komponente
-import SpielStart from "../View/img/SpielStart.png"; // Spiel-Start-Bild
+//===================================================================
+// HOME PAGE - Landing Page mit Multiplayer Game Entry Point
+//===================================================================
+// Autor: Torga Aslan, Emilia
+//
+// Beschreibung: React Homepage Component mit Game Access Control
+// - Multiplayer Game Entry mit Authentication Check
+// - Login-Required Popup für nicht-eingeloggte User
+// - Navigation Integration mit React Router
+// - Responsive UI mit Background Styling
+//===================================================================
 
-/* Autor: Emilia */
-// GameMode-Komponente: Rendert den Spiel-Start-Button
+import React, { useState } from "react";
+import "./home.css";
+import { useNavigate } from "react-router-dom";
+import { Header } from "../components/Header.js";
+import SpielStart from "../View/img/SpielStart.png";
+
+//===================================================================
+// GAME MODE COMPONENT - Reusable Game Entry Button
+//===================================================================
+
+// GameMode Button Component - Renders Spiel-Start Button mit Custom Styling
 const GameMode = ({ title, players, onClick }) => (
   <div className="home-gameModeContainer">
       <button className="Button-Start" onClick={onClick}>
@@ -15,39 +29,50 @@ const GameMode = ({ title, players, onClick }) => (
   </div>
 );
 
-/* Emilia */
-// Haupt-Home-Komponente
-export function Test() {
-  const navigate = useNavigate(); // Navigation-Funktion
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // State für Login-Popup
+//===================================================================
+// MAIN HOME COMPONENT - Landing Page mit Authentication Flow
+//===================================================================
 
-  // Handler für Multiplayer-Button: Prüft Auth und navigiert
+// Main Home Page Component mit Login-Gated Multiplayer Access
+export function Test() {
+  const navigate = useNavigate(); // React Router Navigation
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // Login Popup State
+
+  //===================================================================
+  // EVENT HANDLERS - User Interaction Logic
+  //===================================================================
+
+  // Multiplayer Button Handler - Authentication Check vor Game Entry
   const handleMultiPlayer = () => {
-    const token = localStorage.getItem('token'); // Token aus localStorage holen
+    const token = localStorage.getItem('token'); // JWT Token Check
     if (!token) {
-      setShowLoginPrompt(true); // Popup zeigen wenn nicht eingeloggt
+      setShowLoginPrompt(true); // Show Login Required Popup
       return;
     }
-    navigate('/spiel/multi'); // Zum Multiplayer-Spiel navigieren
+    navigate('/spiel/multi'); // Navigate to Multiplayer Game
   };
 
-  // Popup schließen
+  // Login Popup Close Handler
   const handleClosePopup = () => {
     setShowLoginPrompt(false);
   };
 
-  // Zum Login navigieren und Popup schließen
+  // Navigate to Login Page Handler
   const handleGoToLogin = () => {
     setShowLoginPrompt(false);
     navigate('/login');
   };
 
+  //===================================================================
+  // COMPONENT RENDER - UI Layout
+  //===================================================================
+
   return (
     <div style={{ backgroundColor: "#fcf8ed", minHeight: "100vh", padding: "10px" }}>
-      <Header /> {/* Header mit Navigationsbuttons */}
-      <GameMode title="Multiplayer" players={4} onClick={handleMultiPlayer} /> {/* Spiel-Button */}
+      <Header /> {/* Navigation Header Component */}
+      <GameMode title="Multiplayer" players={4} onClick={handleMultiPlayer} /> {/* Game Entry Button */}
 
-      {/* Login-Popup wenn nicht eingeloggt */}
+            {/* Authentication Required Popup Modal */}
       {showLoginPrompt && (
         <div className="login-popup-overlay">
           <div className="login-popup">

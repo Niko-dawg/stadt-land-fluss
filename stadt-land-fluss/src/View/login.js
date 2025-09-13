@@ -1,32 +1,53 @@
-// Login-Fenster-Komponente: Ermöglicht Benutzer-Login
-import React, { useState } from "react"; // React-Hook für State
-import "./login.css"; // Login-CSS
-import { useNavigate } from "react-router-dom"; // Navigation-Hook
+//===================================================================
+// LOGIN PAGE - User Authentication Interface
+//===================================================================
+// Autor: Torga Aslan, Emilia
+//
+// Beschreibung: React Login Component für User Authentication
+// - Email/Password Login Form mit Validation
+// - API Integration für Authentication  
+// - JWT Token Storage in localStorage
+// - Error Handling und Loading States
+// - Navigation Integration nach Login Success
+//===================================================================
 
-//Autor : Torga & Emilia
+import React, { useState } from "react";
+import "./login.css";
+import { useNavigate } from "react-router-dom";
+
+//===================================================================
+// MAIN LOGIN COMPONENT - Authentication Interface
+//===================================================================
+
 export function LoginWindow() {
-  const navigate = useNavigate(); // Navigation-Funktion
-  const [email, setEmail] = useState(''); // Email-State
-  const [password, setPassword] = useState(''); // Passwort-State
-  const [error, setError] = useState(''); // Fehler-State
-  const [isLoading, setIsLoading] = useState(false); // Lade-State
+  const navigate = useNavigate(); // React Router Navigation
+  
+  // Form State Management
+  const [email, setEmail] = useState('');           // Email Input State
+  const [password, setPassword] = useState('');     // Password Input State  
+  const [error, setError] = useState('');           // Error Message State
+  const [isLoading, setIsLoading] = useState(false); // Loading Indicator State
 
-  // Schließt Login-Fenster und navigiert zur Startseite
+  //===================================================================
+  // EVENT HANDLERS - User Interaction Logic  
+  //===================================================================
+
+  // Close Login Window - Navigate to Homepage
   const handleClose = () => {
     navigate('/');
   };
 
-  // Login-Handler: Validiert Eingaben und sendet API-Request
+  // Login Form Handler - Authentication API Call mit Validation
   const handleLogin = async () => {
-    setError(''); // Fehler zurücksetzen
+    setError(''); // Reset Error State
 
-    // Validierung: Felder prüfen
+    // Input Validation - Check Required Fields
     if (!email || !password) {
       setError('Bitte füllen Sie alle Felder aus.');
       return;
     }
 
-    setIsLoading(true); // Lade-Status setzen
+    setIsLoading(true); // Set Loading State
 
     try {
       const response = await fetch('/api/auth/login', { // Login-API aufrufen

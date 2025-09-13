@@ -1,72 +1,111 @@
-//Autor: Torga Aslan
-//Service für die Authentifizierung. Enthält die Logik für Registrierung und Login von Usern. Arbeitet mit dem Repo zusammen, um Daten in der DB zu speichern/abzufragen.
-//Passwörter werden mit bcrypt gehasht. JWT-Token für sichere Session-Verwaltung.
+//===================================================================
+// Auth Service - Business Logic für Benutzerauthentifizierung
+// Autor: Torga Aslan
+//===================================================================
+// Zweck: Sichere Registrierung/Login mit Password-Hashing und JWT-Tokens
+// Features: bcrypt Password Hashing + JWT Token Generation + Admin Role Management
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const repo = require('./repo');
 
-// JWT Secret (in Produktion aus .env)
+// JWT Secret - In Production aus Environment Variable laden
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// JWT Token generieren - packt User-Daten (inkl. is_admin) in den Token
+//===================================================================
+// JWT TOKEN MANAGEMENT
+//===================================================================
+
+// JWT Access Token generieren - Benutzerdaten in Token verpacken
 function generateToken(user) {
-  // Payload = Daten die im Token gespeichert werden
-  // Diese Daten sind später in req.user verfügbar (nach jwt.verify)
+  // Token Payload - Diese Daten sind später in req.user verfügbar (nach Middleware-Validierung)
   const payload = {
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    is_admin: user.is_admin  // ← Wichtig! Admin-Status aus DB wird im Token gespeichert
+    id: user.id,              // User Database ID
+    email: user.email,        // Email für Identifikation  
+    username: user.username,  // Display Name
+    is_admin: user.is_admin   // Admin-Berechtigung (wichtig für geschützte Routen)
   };
   
-  // Token gültig für 24 Stunden, signiert mit SECRET (kann nicht gefälscht werden)
+  // JWT Token erstellen - gültig für 24h, signiert mit SECRET (tamper-proof)
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 }
 
+//===================================================================
+// USER REGISTRATION
+//===================================================================
 
+// Neuen Benutzer registrieren - mit Input Validation und Password Hashing
 async function register({ benutzername, email, passwort }) {
-  // Validierung der Eingabedaten
-  if (!benutzername || !email || !passwort) throw new Error('MISSING_FIELDS');
-  // Überprüfen, ob der Benutzername oder die E-Mail bereits existiert
-  if (await repo.existsByUsernameOrEmail(benutzername, email)) throw new Error('EMAIL_EXISTS');
-  // Passwort hashen
-  const hash = await bcrypt.hash(passwort, 10);
-  //User-Daten an Repo übergeben und create funktion aufrufen
-  const user = await repo.create({ username: benutzername, email, passwordHash: hash });
+  // Input Validation - alle Pflichtfelder müssen vorhanden sein
+  if (!benutzername || !email || !passwort) {
+    throw new Error('MISSING_FIELDS');
+  }
   
-  // JWT-Token generieren
+  // Duplicate Check - Email/Username bereits vergeben?
+  if (await repo.existsByUsernameOrEmail(benutzername, email)) {
+    throw new Error('EMAIL_EXISTS');
+  }
+  
+  // Password Security - bcrypt hashing mit salt rounds = 10
+  const hashedPassword = await bcrypt.hash(passwort, 10);
+  
+  // Database Insert - neuen User in DB speichern mit gehashtem Password
+  const user = await repo.create({ 
+    username: benutzername, 
+    email, 
+    passwordHash: hashedPassword 
+  });
+  
+  // JWT Token für automatisches Login nach Registrierung generieren
   const token = generateToken(user);
   
-  // Rückgabe der User-Daten mit Token
+  // Success Response - User-Daten und Access Token zurückgeben
   return { user, token };
 }
 
+//===================================================================
+// USER LOGIN  
+//===================================================================
+
+// Benutzer anmelden - Email/Password Validation + JWT Token Generation
 async function login({ email, passwort }) {
-  // Validierung der Eingabedaten
-  if (!email || !passwort) throw new Error('MISSING_FIELDS');
-  // User per E-Mail laden
-  const u = await repo.findByEmail(email);
-  //wenn die Email nicht existiert Fehlermeldung auslösen
-  if (!u) throw new Error('INVALID_CREDENTIALS');
-  // Passwort überprüfen
-  const ok = await bcrypt.compare(passwort, u.password_hash);
-  //wenn das Passwort nicht übereinstimmt Fehlermeldung auslösen
-  if (!ok) throw new Error('INVALID_CREDENTIALS');
-  // Optional: is_approved/is_locked schon prüfen
+  // Input Validation - Email und Passwort sind Pflichtfelder
+  if (!email || !passwort) {
+    throw new Error('MISSING_FIELDS');
+  }
   
-  // User-Objekt formatieren
+  // Database Lookup - User anhand Email suchen
+  const userFromDB = await repo.findByEmail(email);
+  if (!userFromDB) {
+    // Security: Keine Details preisgeben (Email existiert nicht)
+    throw new Error('INVALID_CREDENTIALS');
+  }
+  
+  // Password Verification - bcrypt compare mit gehashtem DB-Password
+  const passwordIsValid = await bcrypt.compare(passwort, userFromDB.password_hash);
+  if (!passwordIsValid) {
+    // Security: Keine Details preisgeben (Password falsch)
+    throw new Error('INVALID_CREDENTIALS');
+  }
+  
+  // Optional: Account Status Checks (is_approved, is_locked) könnten hier eingefügt werden
+  
+  // User Object für Frontend formatieren (ohne sensitive Daten)
   const user = { 
-    id: u.id, 
-    username: u.username, 
-    email: u.email, 
-    is_admin: u.is_admin 
+    id: userFromDB.id, 
+    username: userFromDB.username, 
+    email: userFromDB.email, 
+    is_admin: userFromDB.is_admin 
   };
   
-  // JWT-Token generieren
+  // JWT Token Generation - Benutzer Authentication für Frontend
   const token = generateToken(user);
   
-  //Rückgabe der User-Daten mit Token
+  // Return User Data + Auth Token für Frontend Login Success
   return { user, token };
 }
 
+//===================================================================
+// MODULE EXPORTS - Public Interface  
+//===================================================================
 module.exports = { register, login };

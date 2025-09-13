@@ -825,7 +825,7 @@ async function endVoting() {
                 const points = voting.word.length; // Grundpunkte basierend auf Wortlänge
                 player.roundPoints = (player.roundPoints || 0) + points;
                 
-                // 🔥 WICHTIG: Auch game_entries für Highscore erstellen!
+                //  WICHTIG: Auch game_entries für Highscore erstellen!
                 const db = require('../../db');
                 await db.query(`
                     INSERT INTO game_entries (user_id, category_id, answer, points, is_multiplayer)
