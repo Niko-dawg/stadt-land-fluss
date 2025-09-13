@@ -8,10 +8,8 @@ import SpielStart from "../View/img/SpielStart.png";
 /* Emilia */
 const GameMode = ({ title, players, onClick }) => (
   <div className="home-gameModeContainer">
-   
-      <br />
       <button className="Button-Start" onClick={onClick}>
-      <img src={SpielStart} alt="Spiel Start" />
+      <img src={SpielStart} alt="Spiel Start" className="SpielStart" />
       </button>
     
   </div>

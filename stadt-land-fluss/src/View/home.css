@@ -4,27 +4,34 @@ header {
   justify-content: space-between;
   align-items: center;
   background-color: #fff9ef;
-  padding: 10px;
+  padding-bottom: 10px;
+
 }
 
 /* Emilia */
 .logo {
   background-size: contain;
   background-repeat: no-repeat;
-    height: 150px;
-  padding: 10px;
+  height: 150px;
+  padding-bottom: 7%;
   width: 80px;
   text-align: center;
-  margin: 20px 20px 20px 20px;
   gap: 10px;
-
 }
 
 /* Emilia */
 .headerButtons {
-  display: flex;
   gap: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* Buttons umbrechen bei zu wenig Platz */
+  
 }
+.headerButtons button {
+  flex: 1 1 auto; /* Buttons wachsen und schrumpfen */
+  
+}
+
 
 /* Emilia */
 .helpBtn {
@@ -40,7 +47,6 @@ header {
 .adminBtn {
   border: 1px solid black;
   background-color: white;
-  padding: 5px 30px;
   cursor: pointer;
   font-size: 20px;
 }
@@ -49,7 +55,7 @@ header {
 .loginBtn {
   border: 1px solid black;
   background-color: white;
-  padding: 5px 30px;
+
   cursor: pointer;
   font-size: 20px;
 }
@@ -58,7 +64,7 @@ header {
 .impressumBtn {
   border: 1px solid black;
   background-color: white;
-  padding: 5px 30px;
+
   cursor: pointer;
   font-size: 20px;
 }
@@ -91,13 +97,19 @@ header {
 }
 /* Emilia */
 
-
+.SpielStart {
+ max-width: 100%;
+}
 .Button-Start {
   background-color: #f3f3f3;
   border: 2px #222 solid;
   border-radius: 12px;
-  padding: 10px 20px;
+  padding: 1em 2em; /* relative Einheiten */
   cursor: pointer;
+  max-width: 100%; /* nicht größer als Container */
+  width: auto;
+  font-size: 1.2rem; /* skalierbare Schriftgröße */
+  box-sizing: border-box;
 }
 
 .Button-Start-Image {
