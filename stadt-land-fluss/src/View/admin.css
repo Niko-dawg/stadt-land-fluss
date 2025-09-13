@@ -75,14 +75,14 @@
 .adminUserListContainer {
   border: 6px solid black;
   width: 280px;
-  height: 405px;
+  height: auto;
   overflow-y: auto;
   background: white;
   margin-top: 10px;
   padding: 10px;
   box-sizing: border-box;
 }
-
+maxwidth
 /* Emilia */
 .adminInput {
   border: 2px solid black;

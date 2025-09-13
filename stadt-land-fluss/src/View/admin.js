@@ -283,16 +283,14 @@ export default function AdminUserVerwaltung() {
             <div className="adminMain">
                 {/* Benutzer Liste */}
                 <section className="adminUserListSection">
-                    <button className="adminButtonBenutzerAnzeigen" onClick={loadUsers}>
-                        Benutzer Anzeigen
-                    </button>
+                   
                     <div className="adminUserListContainer">
                         {users.map((user) => (
                             <p key={user.user_id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', borderBottom: '1px solid #eee', margin: '0'}}>
                                 <span>{user.username} ({user.email}) - {user.is_admin ? 'Admin' : 'User'}</span>
                                 <button 
                                     onClick={() => window.confirm('User wirklich löschen?') && deleteUserById(user.user_id)}
-                                    style={{background: 'transparent', color: '#dc3545', border: '1px solid #dc3545', borderRadius: '50%', width: '24px', height: '24px', fontSize: '14px', cursor: 'pointer'}}
+                                    style={{border: 'none', maxHeight: '15px', maxwidth: 'auto', color: '#dc3545', fontSize: '25px', cursor: 'pointer'}}
                                     title="User löschen"
                                 >
                                     ×
@@ -380,31 +378,7 @@ export default function AdminUserVerwaltung() {
                         >
                              Wort anlegen
                         </button>
-                        <button
-                            className="adminButtonWide"
-                            aria-label=" Wort löschen"
-                            onClick={() => {
-                                if (selectedCategoryWords.length === 0) {
-                                    setError('Keine Wörter in dieser Kategorie gefunden');
-                                    setTimeout(() => setError(''), 3000);
-                                    return;
-                                }
-                                
-                                const wordToDelete = selectedCategoryWords.find(w => w.word.toLowerCase() === adminWort.toLowerCase());
-                                if (!wordToDelete) {
-                                    setError('Wort nicht in der aktuellen Kategorie gefunden');
-                                    setTimeout(() => setError(''), 3000);
-                                    return;
-                                }
-                                
-                                if (window.confirm(`Wort "${wordToDelete.word}" wirklich löschen?`)) {
-                                    deleteWord(wordToDelete.word_id);
-                                    setAdminWort('');
-                                }
-                            }}
-                        >
-                             Wort löschen
-                        </button>
+                       
                     </div>
 
                     {/* Wörter-Liste für gewählte Kategorie */}
@@ -422,7 +396,7 @@ export default function AdminUserVerwaltung() {
                                                         deleteWord(word.word_id);
                                                     }
                                                 }}
-                                                style={{background: 'transparent', color: '#dc3545', border: '1px solid #dc3545', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer'}}
+                                                style={{background: 'transparent', border: 'none', maxHeight: '15px', maxWidth: 'auto', color: '#dc3545', fontSize: '25px', cursor: 'pointer'}}
                                                 title="Wort löschen"
                                             >
                                                 ×
