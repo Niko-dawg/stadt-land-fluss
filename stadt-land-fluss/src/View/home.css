@@ -66,9 +66,8 @@ header {
 /* Emilia */
 .home.gameModeContainer {
   display: flex;
-  border: 2px solid black;
-  margin: 20px 0;
-  height: 200px;
+  border: 2px solid black
+  
 }
 
 /* Emilia */
@@ -91,9 +90,20 @@ header {
   border-left: 1px solid black;
 }
 /* Emilia */
-.home.gameModeButtonWrapper {
-  flex: 1;
-  display: flex;
+
+
+.Button-Start {
+  background-color: #f3f3f3;
+  border: 2px #222 solid;
+  border-radius: 12px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.Button-Start-Image {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 /* Emilia */
 .gameModeContent {
@@ -110,7 +120,7 @@ header {
   cursor: pointer;
 }
 /* Emilia */
-.gameModeContent:hover {
+.Button-Start:hover {
   background-color: #f3e7d9;
   border: 2px #a67c52 solid;
 }
