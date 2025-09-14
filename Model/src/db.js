@@ -8,15 +8,12 @@ require('dotenv').config();
 // Laden der Pool-Klasse aus dem installierten 'pg'-Paket 
 const { Pool } = require('pg');
 
+// Standard-Datenbankverbindung passend zur docker-compose.yml
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://root:root@localhost:5432/slf_db';
 
-// Überprüfen ob die Umgebungsvariable DATABASE_URL gesetzt ist um eine Verbindung zur Datenbank herzustellen
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not defined');
-}
-
-// Initialisierung des Verbindungspools und Verbindung zur Datenbank mit der DATABASE_URL aus .env
+// Initialisierung des Verbindungspools mit der DATABASE_URL aus .env oder Fallback
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: DATABASE_URL,
 });
 
 // Hilfsfunktion zum Ausführen von Abfragen
